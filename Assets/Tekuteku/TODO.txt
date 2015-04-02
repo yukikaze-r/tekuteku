@@ -1,0 +1,6 @@
+houseから一定時間ごとにランダムoffice目的地のunitを出す
+目的地までのAIはgrid path finderを使用する
+
+タスク1: office表示
+タスク2: grid path finderで移動
+タスク3: 一定時間ごとにunit出現
