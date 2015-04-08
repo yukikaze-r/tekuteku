@@ -12,39 +12,66 @@ public class FieldMap : MonoBehaviour {
 	public int sizeX;
 	public int sizeZ;
 
-	private int[,] data;
+	private FieldElementType[,] data;
 
 	private List<Road> roads = new List<Road>();
 	private Dictionary<VectorInt2, FieldElement> posFieldElement = new Dictionary<VectorInt2, FieldElement>();
+	private List<Building> offices = new List<Building>();
+	private List<GridPathFinder> officeGridPathFinders = new List<GridPathFinder>();
 
-	void Start() {
+	public List<Building> Offices {
+		get {
+			return offices;
+		}
+	}
 
-		data = new int[sizeX, sizeZ];
+	public List<GridPathFinder> OfficeGridPathFinders {
+		get {
+			return officeGridPathFinders;
+		}
+	}
+
+	public FieldElement GetFieldElementAt(VectorInt2 pos) {
+		return posFieldElement[pos];
+	}
+
+	enum FieldElementType {
+		NONE = 0,
+		ROAD = 1,
+		HOUSE = 2,
+		OFFICE = 3
+	}
+
+	void Awake() {
+		data = new FieldElementType[sizeX, sizeZ];
 		for (int i = 0; i < data.GetLength(0); i++) {
 			for (int j = 0; j < data.GetLength(1); j++) {
 				if (i == 0 || i == data.GetLength(0) - 1 || j == 0 || j == data.GetLength(1) - 1) {
-					data[i, j] = 1;
+					data[i, j] = FieldElementType.ROAD;
 				}
 				else {
-					data[i, j] = 0;
+					data[i, j] = FieldElementType.NONE;
 				}
 			}
 		}
-		data[1, 2] = 2;
-		data[28, 4] = 3;
+		data[1, 2] = FieldElementType.HOUSE;
+		data[28, 4] = FieldElementType.OFFICE;
 
 		MakeFieldElements();
+		MakeGridPathFinders();
+	}
 
+	void Start() {
 		for (int i = 0; i < data.GetLength(0); i++) {
 			for (int j = 0; j < data.GetLength(1); j++) {
 				switch (data[i, j]) {
-					case 1:
+					case FieldElementType.ROAD:
 						CreateBuilding(i,j,roadPrefab);
 						break;
-					case 2:
+					case FieldElementType.HOUSE:
 						CreateBuilding(i,j,housePrefab);
 						break;
-					case 3:
+					case FieldElementType.OFFICE:
 						CreateBuilding(i, j, officePrefab);
 						break;
 				}
@@ -55,6 +82,13 @@ public class FieldMap : MonoBehaviour {
 	private void CreateBuilding(int x, int y, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, new Vector3(x, prefab.transform.position.y, y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
+	}
+
+
+	private void MakeGridPathFinders() {
+		foreach (Building office in offices) {
+			officeGridPathFinders.Add(new GridPathFinder(office, roads.Count));
+		}
 	}
 
 	private void MakeFieldElements() {
@@ -69,19 +103,20 @@ public class FieldMap : MonoBehaviour {
 	}
 
 	private FieldElement MakeFieldElement(VectorInt2 v) {
-		if (data[v.x, v.y] == 0) {
+		if (data[v.x, v.y] == FieldElementType.NONE) {
 			throw new Exception();
 		}
-		if (data[v.x, v.y] == 1) {
+		if (data[v.x, v.y] == FieldElementType.ROAD) {
 			return MakeRoad(v);
 		}
 		else {
-			return MakeBuilding(v);
+			return MakeBuilding(v, data[v.x, v.y]);
 		}
 	}
 
 	private Road MakeRoad(VectorInt2 v) {
 		Road r = new Road(roads.Count);
+		r.Position = v;
 		roads.Add(r);
 		posFieldElement[v] = r;
 		for (int i = 0; i < 4; i++) {
@@ -96,14 +131,19 @@ public class FieldMap : MonoBehaviour {
 	}
 
 
-	private Building MakeBuilding(VectorInt2 v) {
+	private Building MakeBuilding(VectorInt2 v, FieldElementType type) {
 		Building r = new Building();
+		r.Position = v;
+		if (type == FieldElementType.OFFICE) {
+			offices.Add(r);
+		}
+
 		posFieldElement[v] = r;
 		for (int i = 0; i < 4; i++) {
 			Direction4 d = (Direction4)i;
 			VectorInt2 lv = v;
 			lv.Move(d);
-			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1)) && data[lv.x, lv.y] == 1) {
+			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1)) && data[lv.x, lv.y] == FieldElementType.ROAD) {
 				r.AddContact(posFieldElement.ContainsKey(lv) ? (Road)posFieldElement[lv] : MakeRoad(lv));
 			}
 		}

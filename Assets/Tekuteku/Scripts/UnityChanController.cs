@@ -16,7 +16,8 @@ public class UnityChanController : MonoBehaviour {
 	private Direction4 direction;
 	private float movingSpan;
 
-	private Queue<Direction4> path = new Queue<Direction4>();
+	private FieldMap fieldMap;
+	private GridPathFinder pathFinder = null;
 
 	// Use this for initialization
 	void Start() {
@@ -25,21 +26,17 @@ public class UnityChanController : MonoBehaviour {
 		doWalkId = Animator.StringToHash("Do Walk");
 		toRotate = Quaternion.Euler(0, 0, 0);
 		isMoving = false;
-		FieldMap fieldMap = GameObject.Find("Field").GetComponent<FieldMap>();
+		fieldMap = GameObject.Find("Field").GetComponent<FieldMap>();
 
-		for (int i = 0; i < fieldMap.sizeZ - 1; i++) {
-			AddPath(Direction4.UP);
-		}
-		for (int i = 0; i < fieldMap.sizeX - 1; i++) {
-			AddPath(Direction4.RIGHT);
-		}
-		for (int i = 0; i < fieldMap.sizeZ - 1; i++) {
-			AddPath(Direction4.DOWN);
-		}
-		for (int i = 0; i < fieldMap.sizeX - 1; i++) {
-			AddPath(Direction4.LEFT);
-		}
+		var pathFinders = fieldMap.OfficeGridPathFinders;
+		pathFinder = pathFinders[Random.Range(0, pathFinders.Count)];
+		
+	}
 
+	private VectorInt2 CurrentMapPosition {
+		get {
+			return new VectorInt2((int)(transform.position.x+0.5f), (int)(transform.position.z+0.5f));
+		}
 	}
 
 	// Update is called once per frame
@@ -129,13 +126,20 @@ public class UnityChanController : MonoBehaviour {
 			MoveTo(Direction4.DOWN);
 		}
 
-		if (isMoving == false && path.Count >= 1) {
-			MoveTo(path.Dequeue());
+		if (isMoving == false) {
+			
+
+			FieldElement current = fieldMap.GetFieldElementAt(CurrentMapPosition);
+			Road next = pathFinder.GetNextRoad(current);
+			MoveTo((next.Position - current.Position).Direction4);
+
+//			MoveTo(path.Dequeue());
 		}
 	}
 
 	public void MoveTo(Direction4 d) {
 		if (isMoving == false) {
+			Debug.Log(d);
 			transform.rotation = d.Quaternion();
 			direction = d;
 			movingSpan = 1;
@@ -144,9 +148,6 @@ public class UnityChanController : MonoBehaviour {
 		}
 	}
 
-	public void AddPath(Direction4 d) {
-		path.Enqueue(d);
-	}
 
 	public VectorInt2 TilePosition {
 		get {

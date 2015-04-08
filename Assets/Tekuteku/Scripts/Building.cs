@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 
 public class Building : FieldElement {
-	List<Road> contacts = new List<Road>();
+	private List<FieldElement> contacts = new List<FieldElement>();
 
 	public void AddContact(Road r) {
 		contacts.Add(r);
 	}
 
 
-	override public IEnumerable<FieldElement> Contacts {
+	override public IEnumerable<FieldElement> Connections {
 		get {
-			return (IEnumerable<FieldElement>)contacts;
+			return contacts;
 		}
 	}
+
 }

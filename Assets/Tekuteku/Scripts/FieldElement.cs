@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 public abstract class FieldElement {
 
-	abstract public IEnumerable<FieldElement> Contacts {
+	public VectorInt2 Position { get; set; }
+
+	abstract public IEnumerable<FieldElement> Connections {
 		get;
 	}
 }

@@ -19,7 +19,7 @@ public class Road : FieldElement {
 		}
 	}
 
-	override public IEnumerable<FieldElement> Contacts {
+	override public IEnumerable<FieldElement> Connections {
 		get {
 			return next;
 		}
