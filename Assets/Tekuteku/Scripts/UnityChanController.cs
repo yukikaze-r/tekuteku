@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 [RequireComponent(typeof(Animator))]
 public class UnityChanController : MonoBehaviour {
@@ -17,7 +18,7 @@ public class UnityChanController : MonoBehaviour {
 	private float movingSpan;
 
 	private FieldMap fieldMap;
-	private GridPathFinder pathFinder = null;
+	private Building goal = null;
 
 	// Use this for initialization
 	void Start() {
@@ -27,10 +28,11 @@ public class UnityChanController : MonoBehaviour {
 		toRotate = Quaternion.Euler(0, 0, 0);
 		isMoving = false;
 		fieldMap = GameObject.Find("Field").GetComponent<FieldMap>();
-
-		var pathFinders = fieldMap.OfficeGridPathFinders;
-		pathFinder = pathFinders[Random.Range(0, pathFinders.Count)];
 		
+		var offices = fieldMap.Offices;
+		var goalOfficeIndex = Random.Range(0, offices.Count);
+
+		goal = offices[goalOfficeIndex];
 	}
 
 	private VectorInt2 CurrentMapPosition {
@@ -127,12 +129,17 @@ public class UnityChanController : MonoBehaviour {
 		}
 
 		if (isMoving == false) {
-			
-
 			FieldElement current = fieldMap.GetFieldElementAt(CurrentMapPosition);
-			Road next = pathFinder.GetNextRoad(current);
-			MoveTo((next.Position - current.Position).Direction4);
-
+			if (current == goal) {
+				Destroy(gameObject);
+			}
+			else if (goal.Connections.Contains(current)) {
+				MoveTo((goal.Position - current.Position).Direction4);
+			}
+			else {
+				Road next = goal.PathFinder.GetNextRoad(current);
+				MoveTo((next.Position - current.Position).Direction4);
+			}
 //			MoveTo(path.Dequeue());
 		}
 	}
@@ -148,11 +155,4 @@ public class UnityChanController : MonoBehaviour {
 		}
 	}
 
-
-	public VectorInt2 TilePosition {
-		get {
-			var pos = gameObject.transform.position;
-			return new VectorInt2((int)(pos.x + 0.5), (int)(pos.z + 0.5));
-		}
-	}
 }

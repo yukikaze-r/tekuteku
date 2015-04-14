@@ -17,20 +17,13 @@ public class FieldMap : MonoBehaviour {
 	private List<Road> roads = new List<Road>();
 	private Dictionary<VectorInt2, FieldElement> posFieldElement = new Dictionary<VectorInt2, FieldElement>();
 	private List<Building> offices = new List<Building>();
-	private List<GridPathFinder> officeGridPathFinders = new List<GridPathFinder>();
 
 	public List<Building> Offices {
 		get {
 			return offices;
 		}
 	}
-
-	public List<GridPathFinder> OfficeGridPathFinders {
-		get {
-			return officeGridPathFinders;
-		}
-	}
-
+	
 	public FieldElement GetFieldElementAt(VectorInt2 pos) {
 		return posFieldElement[pos];
 	}
@@ -87,7 +80,7 @@ public class FieldMap : MonoBehaviour {
 
 	private void MakeGridPathFinders() {
 		foreach (Building office in offices) {
-			officeGridPathFinders.Add(new GridPathFinder(office, roads.Count));
+			office.PathFinder = new GridPathFinder(office, roads.Count);
 		}
 	}
 
