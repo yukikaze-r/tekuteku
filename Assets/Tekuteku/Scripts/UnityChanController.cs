@@ -11,11 +11,10 @@ public class UnityChanController : MonoBehaviour {
 	private Animator animator;
 	private int speedId;
 	private int doWalkId;
-	private Quaternion toRotate;
 
-	private bool isMoving;
-	private Direction4 direction;
-	private float movingSpan;
+	private Quaternion fromRotation;
+	private Quaternion toRotation;
+	private float timeInFieldElement;
 
 	private FieldMap fieldMap;
 	private Building goal = null;
@@ -25,14 +24,14 @@ public class UnityChanController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
 		doWalkId = Animator.StringToHash("Do Walk");
-		toRotate = Quaternion.Euler(0, 0, 0);
-		isMoving = false;
 		fieldMap = GameObject.Find("Field").GetComponent<FieldMap>();
 		
 		var offices = fieldMap.Offices;
 		var goalOfficeIndex = Random.Range(0, offices.Count);
 
 		goal = offices[goalOfficeIndex];
+
+		Walk();
 	}
 
 	private VectorInt2 CurrentMapPosition {
@@ -40,7 +39,7 @@ public class UnityChanController : MonoBehaviour {
 			return new VectorInt2((int)(transform.position.x+0.5f), (int)(transform.position.z+0.5f));
 		}
 	}
-
+	/*
 	// Update is called once per frame
 	void Update() {
 		float speed = 1; // Input.GetAxis("Vertical") * SPEED;
@@ -142,17 +141,44 @@ public class UnityChanController : MonoBehaviour {
 			}
 //			MoveTo(path.Dequeue());
 		}
+	}*/
+
+	public void FixedUpdate() {
+		VectorInt2 oldMapPosition = this.CurrentMapPosition;
+		var pos = gameObject.transform.position;
+		pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime;
+		transform.rotation = Quaternion.Slerp(this.fromRotation, this.toRotation, timeInFieldElement /( Mathf.PI / 4));
+		gameObject.transform.position = pos;
+		timeInFieldElement += Time.deltaTime;
+
+		if (!oldMapPosition.Equals(this.CurrentMapPosition)) {
+			Walk();
+		}
+
 	}
 
-	public void MoveTo(Direction4 d) {
-		if (isMoving == false) {
-			Debug.Log(d);
-			transform.rotation = d.Quaternion();
-			direction = d;
-			movingSpan = 1;
-
-			isMoving = true;
+	private void Walk() {
+		FieldElement current = fieldMap.GetFieldElementAt(this.CurrentMapPosition);
+		if (current == goal) {
+			Destroy(gameObject);
 		}
+		else if (goal.Connections.Contains(current)) {
+			MoveTo((goal.Position - current.Position).Direction4);
+		}
+		else {
+			Road next = goal.PathFinder.GetNextRoad(current);
+			MoveTo((next.Position - current.Position).Direction4);
+		}
+	}
+
+	private void MoveTo(Direction4 d) {
+		Debug.Log(d);
+		if (timeInFieldElement == 0) {
+			transform.rotation = d.Quaternion();
+		}
+		this.fromRotation = transform.rotation;
+		this.toRotation = d.Quaternion();
+		timeInFieldElement = 0;
 	}
 
 }

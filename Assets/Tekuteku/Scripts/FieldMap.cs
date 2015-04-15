@@ -48,7 +48,7 @@ public class FieldMap : MonoBehaviour {
 			}
 		}
 		data[1, 2] = FieldElementType.HOUSE;
-		data[28, 4] = FieldElementType.OFFICE;
+		data[3, 4] = FieldElementType.OFFICE;
 
 		MakeFieldElements();
 		MakeGridPathFinders();
