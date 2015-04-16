@@ -75,6 +75,7 @@ public class FieldMap : MonoBehaviour {
 	private void CreateBuilding(int x, int y, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, new Vector3(x, prefab.transform.position.y, y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
+		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[new VectorInt2(x,y)]);
 	}
 
 
@@ -125,11 +126,19 @@ public class FieldMap : MonoBehaviour {
 
 
 	private Building MakeBuilding(VectorInt2 v, FieldElementType type) {
-		Building r = new Building();
-		r.Position = v;
-		if (type == FieldElementType.OFFICE) {
-			offices.Add(r);
+		Building r;
+		switch (type) {
+			case FieldElementType.OFFICE:
+				r = new Building();
+				offices.Add(r);
+				break;
+			case FieldElementType.HOUSE:
+				r = new House();
+				break;
+			default:
+				throw new Exception();
 		}
+		r.Position = v;
 
 		posFieldElement[v] = r;
 		for (int i = 0; i < 4; i++) {
