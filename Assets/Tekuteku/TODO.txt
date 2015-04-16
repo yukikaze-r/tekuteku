@@ -3,6 +3,6 @@ houseから一定時間ごとにランダムoffice目的地のunitを出す
 
 ■ office表示
 ■ grid path finderで移動
-□ grid path finderの高速化
+■ grid path finderの高速化
 ■ 曲がる時に滑らかに
 □ 一定時間ごとにunit出現

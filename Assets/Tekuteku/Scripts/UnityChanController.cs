@@ -31,6 +31,8 @@ public class UnityChanController : MonoBehaviour {
 
 		goal = offices[goalOfficeIndex];
 
+		animator.SetFloat(speedId, 1f);
+
 		Walk();
 	}
 
@@ -75,9 +77,9 @@ public class UnityChanController : MonoBehaviour {
 		}
 
 
-//		animator.SetFloat(speedId, speed);
+		animator.SetFloat(speedId, speed);
 //		animator.SetBool(doWalkId, isMoving);
-
+		
 		var pos = gameObject.transform.position;
 
 		if (pos.z > 100 ){
