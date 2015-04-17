@@ -9,7 +9,7 @@ public class House : Building, IDisposable {
 	}
 
 	private void OnTimer() {
-		UnityEngine.Debug.Log("OnTimer House");
+		this.FieldMap.PutVehicle(this.Position);
 	}
 
 	public void Dispose() {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public class FieldMap : MonoBehaviour {
 
+	public GameObject vehiclePrefab;
 	public GameObject roadPrefab;
 	public GameObject housePrefab;
 	public GameObject officePrefab;
@@ -23,7 +24,7 @@ public class FieldMap : MonoBehaviour {
 			return offices;
 		}
 	}
-	
+
 	public FieldElement GetFieldElementAt(VectorInt2 pos) {
 		return posFieldElement[pos];
 	}
@@ -59,10 +60,10 @@ public class FieldMap : MonoBehaviour {
 			for (int j = 0; j < data.GetLength(1); j++) {
 				switch (data[i, j]) {
 					case FieldElementType.ROAD:
-						CreateBuilding(i,j,roadPrefab);
+						CreateBuilding(i, j, roadPrefab);
 						break;
 					case FieldElementType.HOUSE:
-						CreateBuilding(i,j,housePrefab);
+						CreateBuilding(i, j, housePrefab);
 						break;
 					case FieldElementType.OFFICE:
 						CreateBuilding(i, j, officePrefab);
@@ -75,7 +76,7 @@ public class FieldMap : MonoBehaviour {
 	private void CreateBuilding(int x, int y, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, new Vector3(x, prefab.transform.position.y, y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
-		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[new VectorInt2(x,y)]);
+		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[new VectorInt2(x, y)]);
 	}
 
 
@@ -109,8 +110,7 @@ public class FieldMap : MonoBehaviour {
 	}
 
 	private Road MakeRoad(VectorInt2 v) {
-		Road r = new Road(roads.Count);
-		r.Position = v;
+		Road r = new Road(roads.Count) { Position = v, FieldMap = this };
 		roads.Add(r);
 		posFieldElement[v] = r;
 		for (int i = 0; i < 4; i++) {
@@ -139,6 +139,7 @@ public class FieldMap : MonoBehaviour {
 				throw new Exception();
 		}
 		r.Position = v;
+		r.FieldMap = this;
 
 		posFieldElement[v] = r;
 		for (int i = 0; i < 4; i++) {
@@ -150,5 +151,19 @@ public class FieldMap : MonoBehaviour {
 			}
 		}
 		return r;
+	}
+
+	public VectorInt2 GetMapPosition(Vector3 v) {
+		return new VectorInt2((int)(v.x + 0.5f), (int)(v.z + 0.5f));
+	}
+
+
+	public Vector3 GetCenter(VectorInt2 v, float y) {
+		return new Vector3(v.x, y, v.y);
+	}
+
+	public void PutVehicle(VectorInt2 pos) {
+		GameObject child = (GameObject)Instantiate(vehiclePrefab, GetCenter(pos, vehiclePrefab.transform.position.y), Quaternion.identity);
+		child.transform.parent = gameObject.transform;
 	}
 }

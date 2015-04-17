@@ -38,7 +38,7 @@ public class UnityChanController : MonoBehaviour {
 
 	private VectorInt2 CurrentMapPosition {
 		get {
-			return new VectorInt2((int)(transform.position.x+0.5f), (int)(transform.position.z+0.5f));
+			return fieldMap.GetMapPosition(transform.position);
 		}
 	}
 	/*
@@ -174,7 +174,6 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void MoveTo(Direction4 d) {
-		Debug.Log(d);
 		if (timeInFieldElement == 0) {
 			transform.rotation = d.Quaternion();
 		}
