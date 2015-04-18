@@ -58,25 +58,39 @@ public class FieldMap : MonoBehaviour {
 	void Start() {
 		for (int i = 0; i < data.GetLength(0); i++) {
 			for (int j = 0; j < data.GetLength(1); j++) {
+				VectorInt2 pos = new VectorInt2(i, j);
 				switch (data[i, j]) {
 					case FieldElementType.ROAD:
-						CreateBuilding(i, j, roadPrefab);
+						CreateBuilding(pos, roadPrefab);
 						break;
 					case FieldElementType.HOUSE:
-						CreateBuilding(i, j, housePrefab);
+						CreateBuilding(pos, housePrefab);
 						break;
 					case FieldElementType.OFFICE:
-						CreateBuilding(i, j, officePrefab);
+						CreateBuilding(pos, officePrefab);
 						break;
 				}
 			}
 		}
 	}
+	
+	void Update () {
+		if (Input.GetMouseButtonUp(0)) {
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			if (Physics.Raycast(ray, out hit)) {
+				VectorInt2 pos = GetMapPosition(hit.point);
+				MakeBuilding(pos, FieldElementType.HOUSE);
+				CreateBuilding(pos, housePrefab);
+			}
 
-	private void CreateBuilding(int x, int y, GameObject prefab) {
-		GameObject child = (GameObject)Instantiate(prefab, new Vector3(x, prefab.transform.position.y, y), Quaternion.identity);
+		}
+	}
+
+	private void CreateBuilding(VectorInt2 pos, GameObject prefab) {
+		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter( pos, prefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
-		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[new VectorInt2(x, y)]);
+		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
 	}
 
 
@@ -154,12 +168,12 @@ public class FieldMap : MonoBehaviour {
 	}
 
 	public VectorInt2 GetMapPosition(Vector3 v) {
-		return new VectorInt2((int)(v.x + 0.5f), (int)(v.z + 0.5f));
+		return new VectorInt2((int)(v.x), (int)(v.z));
 	}
 
 
 	public Vector3 GetCenter(VectorInt2 v, float y) {
-		return new Vector3(v.x, y, v.y);
+		return new Vector3(v.x + 0.5f, y, v.y+0.5f);
 	}
 
 	public void PutVehicle(VectorInt2 pos) {
