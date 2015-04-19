@@ -9,6 +9,7 @@ public class Road : FieldElement {
 		this.roadIndex = roadIndex;
 	}
 
+
 	public void PutNext(Direction4 d, FieldElement r) {
 		next[(int)d] = r;
 	}
@@ -24,8 +25,4 @@ public class Road : FieldElement {
 			return next;
 		}
 	}
-
-
-
-
 }

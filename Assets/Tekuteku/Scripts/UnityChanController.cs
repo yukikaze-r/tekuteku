@@ -17,6 +17,8 @@ public class UnityChanController : MonoBehaviour {
 	private float timeInFieldElement;
 
 	private FieldMap fieldMap;
+	private FieldElement currentFieldElement;
+	private Road nextRoad;
 	private Building goal = null;
 
 	// Use this for initialization
@@ -146,6 +148,10 @@ public class UnityChanController : MonoBehaviour {
 	}*/
 
 	public void FixedUpdate() {
+		if (nextRoad != null && nextRoad.Vehicles.Count() >= 1) {
+			return;
+		}
+
 		VectorInt2 oldMapPosition = this.CurrentMapPosition;
 		var pos = gameObject.transform.position;
 		pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime;
@@ -160,16 +166,23 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void Walk() {
-		FieldElement current = fieldMap.GetFieldElementAt(this.CurrentMapPosition);
-		if (current == goal) {
-			Destroy(gameObject);
+		if (currentFieldElement != null) {
+			currentFieldElement.Vehicles.Remove(this);
 		}
-		else if (goal.Connections.Contains(current)) {
-			MoveTo((goal.Position - current.Position).Direction4);
+		currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition);
+		if (currentFieldElement == goal) {
+			Destroy(gameObject);
+			return;
+		}
+
+		currentFieldElement.Vehicles.Add(this);
+		if (goal.Connections.Contains(currentFieldElement)) {
+			nextRoad = null;
+			MoveTo((goal.Position - currentFieldElement.Position).Direction4);
 		}
 		else {
-			Road next = goal.PathFinder.GetNextRoad(current);
-			MoveTo((next.Position - current.Position).Direction4);
+			nextRoad = goal.PathFinder.GetNextRoad(currentFieldElement);
+			MoveTo((nextRoad.Position - currentFieldElement.Position).Direction4);
 		}
 	}
 
