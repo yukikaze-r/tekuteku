@@ -270,8 +270,9 @@ GameObject:
   - 222: {fileID: 199078431}
   - 114: {fileID: 199078430}
   - 114: {fileID: 199078432}
+  - 114: {fileID: 199078433}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: ToolPalette
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -336,6 +337,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AllowSwitchOff: 0
+--- !u!114 &199078433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 199078428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12e63d4fc8d1e2e42a354742739f1a33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &244574225
 GameObject:
   m_ObjectHideFlags: 0
@@ -594,12 +606,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90359f15daf7ac041aae782128a03f92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sizeX: 20
+  sizeZ: 10
   vehiclePrefab: {fileID: 196756, guid: 5f1299216dffed441939719135c54bb9, type: 2}
   roadPrefab: {fileID: 122108, guid: 853d8964cca9c3743bbbd28fbf7b0602, type: 2}
   housePrefab: {fileID: 100934, guid: 1ff10740a4318354788c6783c46aeff3, type: 2}
   officePrefab: {fileID: 123562, guid: 67fb5b69f3fc6764fa82ea1b9a277923, type: 2}
-  sizeX: 5
-  sizeZ: 10
+  toolPalette: {fileID: 199078433}
 --- !u!4 &821642913
 Transform:
   m_ObjectHideFlags: 0
@@ -912,7 +925,19 @@ MonoBehaviour:
   m_Group: {fileID: 199078432}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 199078433}
+        m_MethodName: SetOffice
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
@@ -1058,7 +1083,19 @@ MonoBehaviour:
   m_Group: {fileID: 199078432}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 199078433}
+        m_MethodName: SetRoad
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
@@ -1204,7 +1241,19 @@ MonoBehaviour:
   m_Group: {fileID: 199078432}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 199078433}
+        m_MethodName: SetHouse
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine, Version=0.0.0.0,
+            Culture=neutral, PublicKeyToken=null
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: fff
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 1

@@ -6,6 +6,14 @@ using System.Linq;
 [RequireComponent(typeof(Animator))]
 public class UnityChanController : MonoBehaviour {
 
+	private FieldMap fieldMap;
+
+	public FieldMap FieldMap {
+		set {
+			fieldMap = value;
+		}
+	}
+
 	private const float SPEED = 6.0f;
 
 	private Animator animator;
@@ -16,7 +24,6 @@ public class UnityChanController : MonoBehaviour {
 	private Quaternion toRotation;
 	private float timeInFieldElement;
 
-	private FieldMap fieldMap;
 	private FieldElement currentFieldElement;
 	private Road nextRoad;
 	private Building goal = null;
@@ -26,7 +33,6 @@ public class UnityChanController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
 		doWalkId = Animator.StringToHash("Do Walk");
-		fieldMap = GameObject.Find("Field").GetComponent<FieldMap>();
 		
 		var offices = fieldMap.Offices;
 		var goalOfficeIndex = Random.Range(0, offices.Count);

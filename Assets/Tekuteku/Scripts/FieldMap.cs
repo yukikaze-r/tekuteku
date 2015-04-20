@@ -6,12 +6,15 @@ using System.Collections.Generic;
 
 public class FieldMap : MonoBehaviour {
 
+
+	public int sizeX;
+	public int sizeZ;
 	public GameObject vehiclePrefab;
 	public GameObject roadPrefab;
 	public GameObject housePrefab;
 	public GameObject officePrefab;
-	public int sizeX;
-	public int sizeZ;
+	public ToolPalette toolPalette;
+
 
 	private FieldElementType[,] data;
 
@@ -24,6 +27,8 @@ public class FieldMap : MonoBehaviour {
 			return offices;
 		}
 	}
+
+
 
 	public FieldElement GetFieldElementAt(VectorInt2 pos) {
 		return posFieldElement[pos];
@@ -38,9 +43,9 @@ public class FieldMap : MonoBehaviour {
 
 	void Awake() {
 		data = new FieldElementType[sizeX, sizeZ];
-		for (int i = 0; i < data.GetLength(0); i++) {
-			for (int j = 0; j < data.GetLength(1); j++) {
-				if (i == 0 || i == data.GetLength(0) - 1 || j == 0 || j == data.GetLength(1) - 1) {
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (i == 0 || i == 5 - 1 || j == 0 || j == 10 - 1) {
 					data[i, j] = FieldElementType.ROAD;
 				}
 				else {
@@ -61,13 +66,13 @@ public class FieldMap : MonoBehaviour {
 				VectorInt2 pos = new VectorInt2(i, j);
 				switch (data[i, j]) {
 					case FieldElementType.ROAD:
-						CreateBuilding(pos, roadPrefab);
+						CreateGo(pos, roadPrefab);
 						break;
 					case FieldElementType.HOUSE:
-						CreateBuilding(pos, housePrefab);
+						CreateGo(pos, housePrefab);
 						break;
 					case FieldElementType.OFFICE:
-						CreateBuilding(pos, officePrefab);
+						CreateGo(pos, officePrefab);
 						break;
 				}
 			}
@@ -80,14 +85,36 @@ public class FieldMap : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit)) {
 				VectorInt2 pos = GetMapPosition(hit.point);
-				MakeBuilding(pos, FieldElementType.HOUSE);
-				CreateBuilding(pos, housePrefab);
+				if (posFieldElement.ContainsKey(pos) == false) {
+					DoTool(pos);
+				}
+
 			}
 
 		}
 	}
 
-	private void CreateBuilding(VectorInt2 pos, GameObject prefab) {
+	private VectorInt2 DoTool(VectorInt2 pos) {
+		switch (this.toolPalette.Tool) {
+			case Tool.HOUSE:
+				AppendBuilding(pos, FieldElementType.HOUSE);
+				CreateGo(pos, housePrefab);
+				break;
+			case Tool.OFFICE:
+				AppendBuilding(pos, FieldElementType.OFFICE);
+				MakeGridPathFinders();
+				CreateGo(pos, officePrefab);
+				break;
+			case Tool.ROAD:
+				AppendRoad(pos);
+				CreateGo(pos, roadPrefab);
+				MakeGridPathFinders();
+				break;
+		}
+		return pos;
+	}
+
+	private void CreateGo(VectorInt2 pos, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter( pos, prefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
 		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
@@ -123,23 +150,38 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	private Road MakeRoad(VectorInt2 v) {
+	private Road CreateRoad(VectorInt2 v) {
 		Road r = new Road(roads.Count) { Position = v, FieldMap = this };
 		roads.Add(r);
 		posFieldElement[v] = r;
-		for (int i = 0; i < 4; i++) {
-			Direction4 d = (Direction4)i;
-			VectorInt2 lv = v;
-			lv.Move(d);
+		return r;
+	}
+
+	private Road MakeRoad(VectorInt2 v) {
+		Road r = CreateRoad(v);
+		foreach(var lv in GetAroundPositions(v)) {
 			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1)) && data[lv.x, lv.y] != 0) {
-				r.PutNext(d, posFieldElement.ContainsKey(lv) ? posFieldElement[lv] : MakeFieldElement(lv));
+				r.AddContact(posFieldElement.ContainsKey(lv) ? posFieldElement[lv] : MakeFieldElement(lv));
 			}
 		}
 		return r;
 	}
 
+	private Road AppendRoad(VectorInt2 v) {
+		Road r = CreateRoad(v);
+		foreach (var lv in GetAroundPositions(v)) {
+			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1))) {
+				FieldElement next;
+				if (posFieldElement.TryGetValue(lv, out next)) {
+					r.AddContact(next);
+					next.AddContact(r);
+				}
+			}
+		}
+		return r;
+	}
 
-	private Building MakeBuilding(VectorInt2 v, FieldElementType type) {
+	private Building CreateBuilding(VectorInt2 v, FieldElementType type) {
 		Building r;
 		switch (type) {
 			case FieldElementType.OFFICE:
@@ -156,12 +198,29 @@ public class FieldMap : MonoBehaviour {
 		r.FieldMap = this;
 
 		posFieldElement[v] = r;
-		for (int i = 0; i < 4; i++) {
-			Direction4 d = (Direction4)i;
-			VectorInt2 lv = v;
-			lv.Move(d);
+		return r;
+	}
+
+
+	private Building MakeBuilding(VectorInt2 v, FieldElementType type) {
+		Building r = CreateBuilding(v, type);
+		foreach (var lv in GetAroundPositions(v)) {
 			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1)) && data[lv.x, lv.y] == FieldElementType.ROAD) {
 				r.AddContact(posFieldElement.ContainsKey(lv) ? (Road)posFieldElement[lv] : MakeRoad(lv));
+			}
+		}
+		return r;
+	}
+
+	private Building AppendBuilding(VectorInt2 v, FieldElementType type) {
+		Building r = CreateBuilding(v, type);
+		foreach (var lv in GetAroundPositions(v)) {
+			if (lv.IsInboundRect(0, 0, data.GetLength(0), data.GetLength(1))) {
+				FieldElement next;
+				if (posFieldElement.TryGetValue(lv, out next) && next is Road) {
+					r.AddContact(next);
+					next.AddContact(r);
+				}
 			}
 		}
 		return r;
@@ -179,5 +238,15 @@ public class FieldMap : MonoBehaviour {
 	public void PutVehicle(VectorInt2 pos) {
 		GameObject child = (GameObject)Instantiate(vehiclePrefab, GetCenter(pos, vehiclePrefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
+		child.GetComponent<UnityChanController>().FieldMap = this;
+	}
+
+	private IEnumerable<VectorInt2> GetAroundPositions(VectorInt2 org) {
+		for (int i = 0; i < 4; i++) {
+			Direction4 d = (Direction4)i;
+			VectorInt2 lv = org;
+			lv.Move(d);
+			yield return lv;
+		}
 	}
 }
