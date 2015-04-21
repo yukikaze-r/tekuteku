@@ -4,12 +4,16 @@ using System.Collections;
 public class ToolPalette : MonoBehaviour {
 
 
-	private Tool tool = Tool.HOUSE;
+	private Tool selected = Tool.INSPECTOR;
 
-	public Tool Tool {
+	public Tool Selected {
 		get {
-			return tool;
+			return selected;
 		}
+	}
+
+	public void SetInspector() {
+		ChangeTool(Tool.INSPECTOR);
 	}
 
 	public void SetHouse() {
@@ -25,11 +29,11 @@ public class ToolPalette : MonoBehaviour {
 	}
 
 	private void ChangeTool(Tool tool) {
-		this.tool = tool;
+		this.selected = tool;
 	}
 }
 
 
 public enum Tool {
-	HOUSE, OFFICE, ROAD
+	INSPECTOR, HOUSE, OFFICE, ROAD
 };

@@ -13,7 +13,7 @@ public class FieldMap : MonoBehaviour {
 	public GameObject roadPrefab;
 	public GameObject housePrefab;
 	public GameObject officePrefab;
-	public ToolPalette toolPalette;
+	public UI ui;
 
 
 	private FieldElementType[,] data;
@@ -94,24 +94,26 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	private VectorInt2 DoTool(VectorInt2 pos) {
-		switch (this.toolPalette.Tool) {
-			case Tool.HOUSE:
-				AppendBuilding(pos, FieldElementType.HOUSE);
-				CreateGo(pos, housePrefab);
-				break;
-			case Tool.OFFICE:
-				AppendBuilding(pos, FieldElementType.OFFICE);
-				MakeGridPathFinders();
-				CreateGo(pos, officePrefab);
-				break;
-			case Tool.ROAD:
-				AppendRoad(pos);
-				CreateGo(pos, roadPrefab);
-				MakeGridPathFinders();
-				break;
+	private void DoTool(VectorInt2 pos) {
+		var widget = ui.GetWidget(ui.toolPalettePrefab);
+		if (widget != null) {
+			switch (widget.GetComponent<ToolPalette>().Selected) {
+				case Tool.HOUSE:
+					AppendBuilding(pos, FieldElementType.HOUSE);
+					CreateGo(pos, housePrefab);
+					break;
+				case Tool.OFFICE:
+					AppendBuilding(pos, FieldElementType.OFFICE);
+					MakeGridPathFinders();
+					CreateGo(pos, officePrefab);
+					break;
+				case Tool.ROAD:
+					AppendRoad(pos);
+					CreateGo(pos, roadPrefab);
+					MakeGridPathFinders();
+					break;
+			}
 		}
-		return pos;
 	}
 
 	private void CreateGo(VectorInt2 pos, GameObject prefab) {
