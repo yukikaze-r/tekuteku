@@ -25,7 +25,7 @@ public class UnityChanController : MonoBehaviour {
 	private float timeInFieldElement;
 
 	private FieldElement currentFieldElement;
-	private Road nextRoad;
+	private FieldElement nextFieldElement;
 	private Building goal = null;
 
 	// Use this for initialization
@@ -47,6 +47,12 @@ public class UnityChanController : MonoBehaviour {
 	private VectorInt2 CurrentMapPosition {
 		get {
 			return fieldMap.GetMapPosition(transform.position);
+		}
+	}
+
+	public FieldElement NextFieldElement {
+		get {
+			return nextFieldElement;
 		}
 	}
 	/*
@@ -154,8 +160,14 @@ public class UnityChanController : MonoBehaviour {
 	}*/
 
 	public void FixedUpdate() {
-		if (nextRoad != null && nextRoad.Vehicles.Count() >= 1) {
-			return;
+		if (nextFieldElement != null && nextFieldElement.Vehicles.Count() >= 1) {
+			FieldElement nextNext = this.GetNextFieldElement(nextFieldElement);
+			foreach (var vehicle in nextFieldElement.Vehicles) {
+				if (vehicle.NextFieldElement == nextNext) {
+					return;
+				}
+			}
+//			return;
 		}
 
 		VectorInt2 oldMapPosition = this.CurrentMapPosition;
@@ -182,14 +194,15 @@ public class UnityChanController : MonoBehaviour {
 		}
 
 		currentFieldElement.Vehicles.Add(this);
-		if (goal.Connections.Contains(currentFieldElement)) {
-			nextRoad = null;
-			MoveTo((goal.Position - currentFieldElement.Position).Direction4);
+		nextFieldElement = GetNextFieldElement(currentFieldElement);
+		MoveTo((nextFieldElement.Position - currentFieldElement.Position).Direction4);
+	}
+
+	private FieldElement GetNextFieldElement(FieldElement fieldElement) {
+		if (goal.Connections.Contains(fieldElement)) {
+			return goal;
 		}
-		else {
-			nextRoad = goal.PathFinder.GetNextRoad(currentFieldElement);
-			MoveTo((nextRoad.Position - currentFieldElement.Position).Direction4);
-		}
+		return goal.PathFinder.GetNextRoad(fieldElement);
 	}
 
 	private void MoveTo(Direction4 d) {
