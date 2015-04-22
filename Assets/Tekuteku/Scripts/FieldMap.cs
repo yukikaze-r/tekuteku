@@ -107,6 +107,9 @@ public class FieldMap : MonoBehaviour {
 	}
 
 	private void DoBuilding(Tool tool, VectorInt2 pos) {
+		if (posFieldElement.ContainsKey(pos)) {
+			return;
+		}
 		switch (tool) {
 			case Tool.HOUSE:
 				AppendBuilding(pos, FieldElementType.HOUSE);
