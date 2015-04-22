@@ -21,13 +21,16 @@ public class FieldMap : MonoBehaviour {
 	private List<Road> roads = new List<Road>();
 	private Dictionary<VectorInt2, FieldElement> posFieldElement = new Dictionary<VectorInt2, FieldElement>();
 	private List<Building> offices = new List<Building>();
+	private List<FieldElement> selected = new List<FieldElement>();
+	private GameObject fieldInfomationPanel;
+
+	public event Action<FieldElement, bool> SelectChangeListener = delegate { };
 
 	public List<Building> Offices {
 		get {
 			return offices;
 		}
 	}
-
 
 
 	public FieldElement GetFieldElementAt(VectorInt2 pos) {
@@ -84,35 +87,69 @@ public class FieldMap : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit)) {
-				VectorInt2 pos = GetMapPosition(hit.point);
-				if (posFieldElement.ContainsKey(pos) == false) {
-					DoTool(pos);
-				}
-
+				ClickLeft(GetMapPosition(hit.point));
 			}
 
 		}
 	}
 
-	private void DoTool(VectorInt2 pos) {
+	private void ClickLeft(VectorInt2 pos) {
 		var widget = ui.GetWidget(ui.toolPalettePrefab);
 		if (widget != null) {
-			switch (widget.GetComponent<ToolPalette>().Selected) {
-				case Tool.HOUSE:
-					AppendBuilding(pos, FieldElementType.HOUSE);
-					CreateGo(pos, housePrefab);
-					break;
-				case Tool.OFFICE:
-					AppendBuilding(pos, FieldElementType.OFFICE);
-					MakeGridPathFinders();
-					CreateGo(pos, officePrefab);
-					break;
-				case Tool.ROAD:
-					AppendRoad(pos);
-					CreateGo(pos, roadPrefab);
-					MakeGridPathFinders();
-					break;
+			Tool tool = widget.GetComponent<ToolPalette>().Selected;
+			if (tool == Tool.INSPECTOR) {
+				DoInspector(pos);
 			}
+			else {
+				DoBuilding(tool, pos);
+			}
+		}
+	}
+
+	private void DoBuilding(Tool tool, VectorInt2 pos) {
+		switch (tool) {
+			case Tool.HOUSE:
+				AppendBuilding(pos, FieldElementType.HOUSE);
+				CreateGo(pos, housePrefab);
+				break;
+			case Tool.OFFICE:
+				AppendBuilding(pos, FieldElementType.OFFICE);
+				MakeGridPathFinders();
+				CreateGo(pos, officePrefab);
+				break;
+			case Tool.ROAD:
+				AppendRoad(pos);
+				CreateGo(pos, roadPrefab);
+				MakeGridPathFinders();
+				break;
+		}
+	}
+
+	private void DoInspector(VectorInt2 pos) {
+		if (fieldInfomationPanel != null) {
+			Destroy(fieldInfomationPanel);
+		}
+
+		FieldElement element;
+		if (posFieldElement.TryGetValue(pos, out element)) {
+			if (selected.Contains(element)) {
+				selected.Remove(element);
+				SelectChangeListener(element, false);
+			}
+			else {
+				selected.Add(element);
+				SelectChangeListener(element, true);
+			}
+			if (element is Road) {
+				fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
+				fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel((Road)element);
+			}
+		}
+		else {
+			foreach (var e in selected) {
+				SelectChangeListener(e, false);
+			}
+			selected.Clear();
 		}
 	}
 

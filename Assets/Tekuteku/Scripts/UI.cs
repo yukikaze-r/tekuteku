@@ -31,7 +31,7 @@ public class UI : MonoBehaviour {
 		}
 	}
 
-	public void Open(GameObject uiPrefab) {
+	public GameObject Open(GameObject uiPrefab) {
 		GameObject go = (GameObject)Instantiate(uiPrefab);
 		go.transform.SetParent(gameObject.transform, false);
 
@@ -41,6 +41,7 @@ public class UI : MonoBehaviour {
 			manager[uiPrefab] = list;
 		}
 		list.Add(go);
+		return go;
 	}
 
 	public GameObject GetWidget(GameObject uiPrefab) {
