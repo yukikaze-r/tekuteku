@@ -5,6 +5,12 @@ public class FieldElementComponent : MonoBehaviour {
 
 	private FieldElement fieldElement;
 
+	public FieldElement FieldElement {
+		get {
+			return fieldElement;
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 	

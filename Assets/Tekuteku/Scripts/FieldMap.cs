@@ -159,7 +159,7 @@ public class FieldMap : MonoBehaviour {
 	private void CreateGo(VectorInt2 pos, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter( pos, prefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
-		child.AddComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
+		child.GetComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
 	}
 
 
