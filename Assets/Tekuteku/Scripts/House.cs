@@ -10,7 +10,7 @@ public class House : Building, IDisposable {
 	}
 
 	private void OnTimer() {
-		if (Connections.Count() >= 1) {
+		if (ConnectionsFrom.Count() >= 1) {
 			if (this.Vehicles.Count() == 0) {
 				this.FieldMap.PutVehicle(this.Position);
 			}

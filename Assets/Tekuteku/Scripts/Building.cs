@@ -7,5 +7,8 @@ public class Building : FieldElement {
 		set;
 	}
 
+	public void CalculatePath() {
+		this.PathFinder = new GridPathFinder(this, this.FieldMap.Roads.Count);
+	}
 
 }

@@ -11,7 +11,7 @@ public class GridPathFinder {
 
 	private void CalculateDistances(FieldElement goal, int distance) {
 		RoadIndexDistanceList list = new RoadIndexDistanceList();
-		foreach (var e in goal.Connections) {
+		foreach (var e in goal.ConnectionsFrom) {
 			if (e is Road) {
 				Road r = (Road)e;
 				list.Add(r, distance);
@@ -27,7 +27,7 @@ public class GridPathFinder {
 		while (list.PopLowestDistance(out road, out distance)) {
 			if (distances[road.Index] >= distance) {
 				int newDistance = distance + 1;
-				foreach (var e in road.Connections) {
+				foreach (var e in road.ConnectionsFrom) {
 					if (e is Road) {
 						Road r = (Road)e;
 						int current = distances[r.Index];
@@ -44,7 +44,7 @@ public class GridPathFinder {
 	public Road GetNextRoad(FieldElement at) {
 		int min = int.MaxValue;
 		Road result = null;
-		foreach (var e in at.Connections) {
+		foreach (var e in at.ConnectionsTo) {
 			if (e is Road) {
 				Road road = (Road)e;
 				int d = distances[road.Index];

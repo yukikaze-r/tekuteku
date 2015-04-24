@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 
 public struct VectorInt2 {
 
@@ -39,7 +39,12 @@ public struct VectorInt2 {
 				x -= distance;
 				break;
 		}
+	}
 
+	public VectorInt2 GetNext(Direction4 d, int distance = 1) {
+		VectorInt2 l = this;
+		l.Move(d, distance);
+		return l;
 	}
 
 	public Direction4 Direction4 {
@@ -59,4 +64,24 @@ public struct VectorInt2 {
 			throw new System.Exception("not direction4");
 		}
 	}
+
+	public IEnumerable<VectorInt2> GetAroundPositions4() {
+		for (int i = 1; i <= 4; i++) {
+			VectorInt2 lv = this;
+			lv.Move((Direction4)i);
+			yield return lv;
+		}
+	}
+
+    public override int GetHashCode () {
+        return base.GetHashCode ();
+    }
+
+	public static bool operator ==(VectorInt2 left, VectorInt2 right) {
+        return left.Equals (right);
+    }
+
+	public static bool operator !=(VectorInt2 left, VectorInt2 right) {
+        return !left.Equals (right);
+    }
 }

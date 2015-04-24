@@ -11,6 +11,7 @@ GameObject:
   - 33: {fileID: 3300934}
   - 136: {fileID: 13600934}
   - 23: {fileID: 2300934}
+  - 114: {fileID: 11411220}
   m_Layer: 0
   m_Name: House
   m_TagString: Untagged
@@ -57,6 +58,20 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100934}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &11411220
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d9b878b04bd4d42bc5993478d54ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  name: 0
+  connectionsFrom: 
+  connectionsTo: 
 --- !u!136 &13600934
 CapsuleCollider:
   m_ObjectHideFlags: 1

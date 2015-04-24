@@ -199,10 +199,17 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private FieldElement GetNextFieldElement(FieldElement fieldElement) {
-		if (goal.Connections.Contains(fieldElement)) {
+		if (goal.ConnectionsFrom.Contains(fieldElement)) {
 			return goal;
 		}
-		return goal.PathFinder.GetNextRoad(fieldElement);
+		FieldElement result = goal.PathFinder.GetNextRoad(fieldElement);
+		if (currentFieldElement.ConnectionsFrom.Contains(result) == false) {
+			goal.CalculatePath();
+			return goal.PathFinder.GetNextRoad(fieldElement);
+		}
+		else {
+			return result;
+		}
 	}
 
 	private void MoveTo(Direction4 d) {

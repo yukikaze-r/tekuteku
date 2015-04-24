@@ -11,22 +11,21 @@ public class RoadPanel : MonoBehaviour {
 
 	public void ChangeOneWayType() {
 		foreach (var road in roads) {
-			OneWayType t = road.OneWayType;
-			switch (t) {
-				case OneWayType.NONE:
-					road.OneWayType = OneWayType.DOWN_TOP;
+			switch (road.OneWayDirection) {
+				case Direction4.NONE:
+					road.OneWayDirection = Direction4.UP;
 					break;
-				case OneWayType.DOWN_TOP:
-					road.OneWayType = OneWayType.LEFT_RIGHT;
+				case Direction4.UP:
+					road.OneWayDirection = Direction4.RIGHT;
 					break;
-				case OneWayType.LEFT_RIGHT:
-					road.OneWayType = OneWayType.TOP_DOWN;
+				case Direction4.RIGHT:
+					road.OneWayDirection = Direction4.DOWN;
 					break;
-				case OneWayType.TOP_DOWN:
-					road.OneWayType = OneWayType.RIGHT_LEFT;
+				case Direction4.DOWN:
+					road.OneWayDirection = Direction4.LEFT;
 					break;
-				case OneWayType.RIGHT_LEFT:
-					road.OneWayType = OneWayType.NONE;
+				case Direction4.LEFT:
+					road.OneWayDirection = Direction4.NONE;
 					break;
 			}
 		}

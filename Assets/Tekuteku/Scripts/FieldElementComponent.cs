@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class FieldElementComponent : MonoBehaviour {
+
+	public int name;
+	public List<int> connectionsFrom = new List<int>();
+	public List<int> connectionsTo = new List<int>();
 
 	private FieldElement fieldElement;
 
@@ -11,16 +15,21 @@ public class FieldElementComponent : MonoBehaviour {
 		}
 	}
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	protected void Update() {
+		if (fieldElement != null) {
+			name = fieldElement.GetHashCode();
+			connectionsFrom.Clear();
+			foreach (var c in fieldElement.ConnectionsFrom) {
+				connectionsFrom.Add(c.GetHashCode());
+			}
+			connectionsTo.Clear();
+			foreach (var c in fieldElement.ConnectionsTo) {
+				connectionsTo.Add(c.GetHashCode());
+			}
+		}
 
+	}
+	
 	public void AcceptModel(FieldElement fieldElement) {
 		this.fieldElement = fieldElement;
 		fieldElement.FieldMap.SelectChangeListener += OnSelectChange;

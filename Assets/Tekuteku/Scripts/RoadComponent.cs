@@ -14,28 +14,13 @@ public class RoadComponent : FieldElementComponent {
 	}
 	
 	private void OnOneWayChange() {
-		if(road.OneWayType == OneWayType.NONE) {
+		if(road.OneWayDirection == Direction4.NONE) {
 			gameObject.renderer.material.mainTexture = null;
 		}
 		else {
 			gameObject.renderer.material.mainTexture = oneWayTexture;
-			switch (road.OneWayType) {
-				case OneWayType.DOWN_TOP:
-					transform.rotation = Direction4.UP.Quaternion();
-					break;
-				case OneWayType.TOP_DOWN:
-					transform.rotation = Direction4.DOWN.Quaternion();
-					break;
-				case OneWayType.LEFT_RIGHT:
-					transform.rotation = Direction4.RIGHT.Quaternion();
-					break;
-				case OneWayType.RIGHT_LEFT:
-					transform.rotation = Direction4.LEFT.Quaternion();
-					break;
-			}
-
+			transform.rotation = road.OneWayDirection.Quaternion();
 		}
-
 	}
 
 	void OnDestroy() {
