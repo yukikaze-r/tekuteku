@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
+using System.Linq;
 
 public class FieldMap : MonoBehaviour {
 
@@ -143,10 +142,14 @@ public class FieldMap : MonoBehaviour {
 				selected.Add(element);
 				SelectChangeListener(element, true);
 			}
-			if (element is Road) {
-				fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
-				fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel((Road)element);
+
+			if(selected.Count >= 1) {
+				if (selected.TrueForAll(e => e is Road)) {
+					fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
+					fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel(selected.Select(e=>(Road)e));
+				}
 			}
+
 		}
 		else {
 			foreach (var e in selected) {
