@@ -28,6 +28,7 @@ public class UnityChanController : MonoBehaviour {
 	private FieldElement nextFieldElement;
 	private Building goal = null;
 
+
 	// Use this for initialization
 	void Start() {
 		animator = GetComponent<Animator>();
@@ -162,17 +163,22 @@ public class UnityChanController : MonoBehaviour {
 	public void FixedUpdate() {
 		if (nextFieldElement != null && nextFieldElement.Vehicles.Count() >= 1) {
 			FieldElement nextNext = this.GetNextFieldElement(nextFieldElement);
+			if (nextNext == currentFieldElement) {
+				Walk();
+				return;
+			}
 			foreach (var vehicle in nextFieldElement.Vehicles) {
 				if (vehicle.NextFieldElement == nextNext) {
 					return;
 				}
 			}
-//			return;
 		}
 
 		VectorInt2 oldMapPosition = this.CurrentMapPosition;
 		var pos = gameObject.transform.position;
-		pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime;
+		if (!IsUTurn() || Quaternion.Angle(transform.rotation,this.toRotation) <= 10f) {
+			pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime;
+		}
 		transform.rotation = Quaternion.Slerp(this.fromRotation, this.toRotation, timeInFieldElement /( Mathf.PI / 4));
 		gameObject.transform.position = pos;
 		timeInFieldElement += Time.deltaTime;
@@ -220,5 +226,9 @@ public class UnityChanController : MonoBehaviour {
 		this.toRotation = d.Quaternion();
 		timeInFieldElement = 0;
 	}
+
+    private bool IsUTurn() {
+		return Quaternion.Angle(this.toRotation,this.fromRotation) >= 100; // ピッタリ180度ではない時がある
+    }
 
 }
