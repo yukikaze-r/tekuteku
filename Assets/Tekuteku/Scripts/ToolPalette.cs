@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class ToolPalette : MonoBehaviour {
 
+	public event Action ChangeSlectionListener = delegate { };
 
 	private Tool selected = Tool.INSPECTOR;
 
@@ -30,6 +32,7 @@ public class ToolPalette : MonoBehaviour {
 
 	private void ChangeTool(Tool tool) {
 		this.selected = tool;
+		ChangeSlectionListener();
 	}
 }
 

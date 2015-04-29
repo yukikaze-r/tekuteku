@@ -15,6 +15,10 @@ public class FieldElementComponent : MonoBehaviour {
 		}
 	}
 
+	protected void Start() {
+		gameObject.renderer.material.SetFloat("_Shininess", 1f);
+	}
+
 	protected void Update() {
 		if (fieldElement != null) {
 			name = fieldElement.GetHashCode();

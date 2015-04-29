@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,25 +11,30 @@ public class UI : MonoBehaviour {
 
 	private Dictionary<GameObject, List<GameObject>> manager = new Dictionary<GameObject, List<GameObject>>();
 
+	protected void Start () {
+		StartCoroutine(CheckManagerGC());
+	}
 
-	void Start () {
-		Open(this.toolPalettePrefab);
+	private IEnumerator CheckManagerGC() {
+		while (true) {
+			yield return new WaitForSeconds(1f);
+			foreach (var p in manager) {
+				int i = 0;
+				for (int j = 0; j < p.Value.Count; j++) {
+					if (p.Value[j] == null) {
+						continue;
+					}
+					p.Value[i] = p.Value[j];
+					i++;
+				}
+				if (i != p.Value.Count) {
+					p.Value.RemoveRange(i, p.Value.Count - i);
+				}
+			}
+		}
 	}
 
 	void Update() {
-		foreach (var p in manager) {
-			int i = 0;
-			for (int j = 0; j < p.Value.Count;j++) {
-				if (p.Value[j] == null) {
-					continue;
-				}
-				p.Value[i] = p.Value[j];
-				i++;
-			}
-			if (i != p.Value.Count) {
-				p.Value.RemoveRange(i, p.Value.Count - i);
-			}
-		}
 	}
 
 	public GameObject Open(GameObject uiPrefab) {

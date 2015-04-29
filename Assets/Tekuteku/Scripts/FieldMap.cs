@@ -20,9 +20,10 @@ public class FieldMap : MonoBehaviour {
 	private List<Road> roads = new List<Road>();
 	private Dictionary<VectorInt2, FieldElement> posFieldElement = new Dictionary<VectorInt2, FieldElement>();
 	private List<Building> offices = new List<Building>();
+
+	
 	private List<FieldElement> selected = new List<FieldElement>();
 	private GameObject fieldInfomationPanel;
-
 	public event Action<FieldElement, bool> SelectChangeListener = delegate { };
 
 	public List<Building> Offices {
@@ -47,14 +48,8 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	enum FieldElementType {
-		NONE = 0,
-		ROAD = 1,
-		HOUSE = 2,
-		OFFICE = 3
-	}
 
-	void Awake() {
+	protected void Awake() {
 		data = new FieldElementType[sizeX, sizeZ];
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
@@ -73,7 +68,7 @@ public class FieldMap : MonoBehaviour {
 		MakeGridPathFinders();
 	}
 
-	void Start() {
+	protected void Start() {
 		for (int i = 0; i < data.GetLength(0); i++) {
 			for (int j = 0; j < data.GetLength(1); j++) {
 				VectorInt2 pos = new VectorInt2(i, j);
@@ -90,46 +85,22 @@ public class FieldMap : MonoBehaviour {
 				}
 			}
 		}
-	}
-	
-	void Update () {
-		if (Input.GetMouseButtonUp(0)) {
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			if (Physics.Raycast(ray, out hit)) {
-				ClickLeft(GetMapPosition(hit.point));
-			}
 
-		}
+		ui.Open(ui.toolPalettePrefab).GetComponent<ToolPalette>().ChangeSlectionListener += OnChangeToolSelection;
 	}
 
-	private void ClickLeft(VectorInt2 pos) {
-		var widget = ui.GetWidget(ui.toolPalettePrefab);
-		if (widget != null) {
-			Tool tool = widget.GetComponent<ToolPalette>().Selected;
-			if (tool == Tool.INSPECTOR) {
-				DoInspector(pos);
-			}
-			else {
-				DoBuilding(tool, pos);
-			}
-		}
-	}
+	public void Build(VectorInt2 pos, FieldElementType type) {
 
-	private void DoBuilding(Tool tool, VectorInt2 pos) {
-		if (posFieldElement.ContainsKey(pos)) {
-			return;
-		}
-		switch (tool) {
-			case Tool.HOUSE:
+		switch (type) {
+			case FieldElementType.HOUSE:
 				AppendBuilding(pos, FieldElementType.HOUSE);
 				CreateGo(pos, housePrefab);
 				break;
-			case Tool.OFFICE:
+			case FieldElementType.OFFICE:
 				AppendBuilding(pos, FieldElementType.OFFICE).CalculatePath();
 				CreateGo(pos, officePrefab);
 				break;
-			case Tool.ROAD:
+			case FieldElementType.ROAD:
 				AppendRoad(pos);
 				CreateGo(pos, roadPrefab);
 				MakeGridPathFinders();
@@ -137,36 +108,39 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	private void DoInspector(VectorInt2 pos) {
+	public void SelectFieldElement(FieldElement element) {
 		if (fieldInfomationPanel != null) {
 			Destroy(fieldInfomationPanel);
 		}
 
-		FieldElement element;
-		if (posFieldElement.TryGetValue(pos, out element)) {
-			if (selected.Contains(element)) {
-				selected.Remove(element);
-				SelectChangeListener(element, false);
-			}
-			else {
-				selected.Add(element);
-				SelectChangeListener(element, true);
-			}
-
-			if(selected.Count >= 1) {
-				if (selected.TrueForAll(e => e is Road)) {
-					fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
-					fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel(selected.Select(e=>(Road)e));
-				}
-			}
-
+		if (selected.Contains(element)) {
+			selected.Remove(element);
+			SelectChangeListener(element, false);
+		} else {
+			selected.Add(element);
+			SelectChangeListener(element, true);
 		}
-		else {
-			foreach (var e in selected) {
-				SelectChangeListener(e, false);
+
+		if (selected.Count >= 1) {
+			if (selected.TrueForAll(e => e is Road)) {
+				fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
+				fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel(selected.Select(e => (Road)e));
 			}
-			selected.Clear();
 		}
+	}
+
+	public void ClearSelectedFieldElements() {
+		if (fieldInfomationPanel != null) {
+			Destroy(fieldInfomationPanel);
+		}
+		foreach (var e in selected) {
+			SelectChangeListener(e, false);
+		}
+		selected.Clear();
+	}
+
+	private void OnChangeToolSelection() {
+		ClearSelectedFieldElements();
 	}
 
 	private void CreateGo(VectorInt2 pos, GameObject prefab) {
@@ -296,4 +270,12 @@ public class FieldMap : MonoBehaviour {
 		child.GetComponent<UnityChanController>().FieldMap = this;
 	}
 
+}
+
+
+public enum FieldElementType {
+	NONE = 0,
+	ROAD = 1,
+	HOUSE = 2,
+	OFFICE = 3
 }
