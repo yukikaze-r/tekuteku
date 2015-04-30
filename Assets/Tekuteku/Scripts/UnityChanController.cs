@@ -14,11 +14,9 @@ public class UnityChanController : MonoBehaviour {
 		}
 	}
 
-	private const float SPEED = 6.0f;
 
 	private Animator animator;
 	private int speedId;
-	private int doWalkId;
 	private float speed;
 
 	private bool isSetRotation;
@@ -48,7 +46,6 @@ public class UnityChanController : MonoBehaviour {
 		isSetRotation = false;
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
-		doWalkId = Animator.StringToHash("Do Walk");
 		
 		var offices = fieldMap.Offices;
 		var goalOfficeIndex = Random.Range(0, offices.Count);
@@ -86,7 +83,6 @@ public class UnityChanController : MonoBehaviour {
 		if (speed < 1f) {
 			speed += 0.1f;
 		}
-//		speed = 1f;
 
 		if (!IsUTurn() || Quaternion.Angle(transform.rotation,this.toRotation) <= 10f) {
 			pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime * speed;
@@ -141,7 +137,7 @@ public class UnityChanController : MonoBehaviour {
 	}
 
     private bool IsUTurn() {
-		return Quaternion.Angle(this.toRotation,this.fromRotation) >= 100; // ピッタリ180度ではない時がある
+		return Quaternion.Angle(this.toRotation,this.fromRotation) >= 100;
     }
 
 }
