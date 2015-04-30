@@ -19,11 +19,12 @@ public class UnityChanController : MonoBehaviour {
 	private Animator animator;
 	private int speedId;
 	private int doWalkId;
-	public float speed;
+	private float speed;
 
-	public Quaternion fromRotation;
-	public Quaternion toRotation;
-	public float distanceInFieldElement;
+	private bool isSetRotation;
+	private Quaternion fromRotation;
+	private Quaternion toRotation;
+	private float distanceInFieldElement;
 
 	private FieldElement currentFieldElement;
 	private FieldElement nextFieldElement;
@@ -44,6 +45,7 @@ public class UnityChanController : MonoBehaviour {
 
 
 	protected void Start() {
+		isSetRotation = false;
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
 		doWalkId = Animator.StringToHash("Do Walk");
@@ -129,8 +131,9 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void MoveTo(Direction4 d) {
-		if (distanceInFieldElement == 0) {
-//			transform.rotation = d.Quaternion();
+		if (isSetRotation == false) {
+			transform.rotation = d.Quaternion();
+			isSetRotation = true;
 		}
 		this.fromRotation = transform.rotation;
 		this.toRotation = d.Quaternion();
