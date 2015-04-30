@@ -37,7 +37,7 @@ public class FieldMapAction : MonoBehaviour {
 	}
 
 	private void DoBuilding(Tool tool, VectorInt2 pos) {
-		if (fieldMap.GetFieldElementAt(pos) == null) {
+		if (fieldMap.GetFieldElementAt(pos) != null) {
 			return;
 		}
 		switch (tool) {
