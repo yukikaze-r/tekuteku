@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Road : FieldElement {
 
@@ -32,32 +33,30 @@ public class Road : FieldElement {
 			OneWayTypeChangeListener();
 		}
 	}
-		
-	public override IEnumerable<FieldElement> ConnectionsFrom {
+
+	public bool IsOneWay {
 		get {
-			foreach (var e in base.ConnectionsFrom) {
-				if (this.OneWayDirection != Direction4.NONE) {
-					if (e.Position == this.Position.GetNext(this.OneWayDirection)) {
-						continue;
-					}
-				}
-				yield return e;
-			}
+			return this.OneWayDirection != Direction4.NONE;
 		}
 	}
 
+	public virtual bool IsConnectFrom(FieldElement from) {
+		return this.IsOneWay == false || from.Position != this.Position.GetNext(this.OneWayDirection);
+	}
+
+	public virtual bool IsConnectTo(FieldElement to) {
+		return this.IsOneWay == false || to.Position != this.Position.GetNext(this.OneWayDirection.Reverse());
+	}
+
+	public override IEnumerable<FieldElement> ConnectionsFrom {
+		get {
+			return base.ConnectionsFrom.Where(IsConnectFrom);
+		}
+	}
 
 	public override IEnumerable<FieldElement> ConnectionsTo {
 		get {
-			foreach (var e in base.ConnectionsTo) {
-				if (this.OneWayDirection != Direction4.NONE) {
-					if (e.Position == this.Position.GetNext(this.OneWayDirection.Reverse())) {
-						continue;
-					}
-				}
-				yield return e;
-			}
+			return base.ConnectionsFrom.Where(IsConnectTo);
 		}
 	}
-
 }

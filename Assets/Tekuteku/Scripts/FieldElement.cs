@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract class FieldElement {
 
-	public FieldMap FieldMap { get; set; }
-	public VectorInt2 Position { get; set; }
+	public FieldMap FieldMap { get; private set; }
+	public VectorInt2 Position { get; private set; }
 
 	protected List<FieldElement> contacts = new List<FieldElement>();
 	
@@ -15,6 +16,12 @@ public abstract class FieldElement {
 		}
 	}
 
+	public void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+		this.FieldMap = fieldMap;
+		this.Position = position;
+		SetPosFieldElement();
+	}
+
 	public void AddContact(FieldElement r) {
 		contacts.Add(r);
 	}
@@ -22,34 +29,19 @@ public abstract class FieldElement {
 
 	public virtual IEnumerable<FieldElement> ConnectionsFrom {
 		get {
-			foreach (var e in contacts) {
-				if (e is Road) {
-					Road r = (Road)e;
-					if (r.OneWayDirection != Direction4.NONE) {
-						if (r.Position.GetNext(r.OneWayDirection.Reverse()) == this.Position) {
-							continue;
-						}
-					}
-				}
-				yield return e;
-			}
+			return contacts.OfType<Road>().Where(r => r.IsConnectTo(this)).OfType<FieldElement>();
 		}
 	}
 
 
 	public virtual IEnumerable<FieldElement> ConnectionsTo {
 		get {
-			foreach (var e in contacts) {
-				if (e is Road) {
-					Road r = (Road)e;
-					if (r.OneWayDirection != Direction4.NONE) {
-						if (r.Position.GetNext(r.OneWayDirection) == this.Position) {
-							continue;
-						}
-					}
-				}
-				yield return e;
-			}
+			return contacts.OfType<Road>().Where(r => r.IsConnectFrom(this)).OfType<FieldElement>();
 		}
 	}
+
+	protected virtual void SetPosFieldElement() {
+		this.FieldMap.PutFieldElement(this.Position, this);
+	}
+
 }

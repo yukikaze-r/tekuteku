@@ -30,6 +30,10 @@ public class ToolPalette : MonoBehaviour {
 		ChangeTool(Tool.ROAD);
 	}
 
+	public void SetSlope() {
+		ChangeTool(Tool.SLOPE);
+	}
+
 	private void ChangeTool(Tool tool) {
 		this.selected = tool;
 		ChangeSlectionListener();
@@ -38,5 +42,5 @@ public class ToolPalette : MonoBehaviour {
 
 
 public enum Tool {
-	INSPECTOR, HOUSE, OFFICE, ROAD
+	INSPECTOR, HOUSE, OFFICE, ROAD, SLOPE
 };

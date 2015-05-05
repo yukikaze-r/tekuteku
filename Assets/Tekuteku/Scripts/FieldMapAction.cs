@@ -50,6 +50,9 @@ public class FieldMapAction : MonoBehaviour {
 			case Tool.ROAD:
 				fieldMap.Build(pos, FieldElementType.ROAD);
 				break;
+			case Tool.SLOPE:
+				fieldMap.Build(pos, FieldElementType.SLOPE);
+				break;
 		}
 	}
 

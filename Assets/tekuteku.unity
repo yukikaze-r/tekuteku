@@ -503,6 +503,7 @@ MonoBehaviour:
   roadPrefab: {fileID: 122108, guid: 853d8964cca9c3743bbbd28fbf7b0602, type: 2}
   housePrefab: {fileID: 100934, guid: 1ff10740a4318354788c6783c46aeff3, type: 2}
   officePrefab: {fileID: 123562, guid: 67fb5b69f3fc6764fa82ea1b9a277923, type: 2}
+  slopePrefab: {fileID: 121246, guid: 58ec229a0e0e49149a0e8e2c31becde0, type: 2}
   ui: {fileID: 438239259}
 --- !u!4 &821642913
 Transform:
