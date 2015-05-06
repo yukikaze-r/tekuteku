@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 
 [@RequireComponent(typeof(FieldMap))]
-public class FieldMapAction : MonoBehaviour {
+public class FieldMapController : MonoBehaviour {
 
 	public UI ui;
 
 	private FieldMap fieldMap;
+	private ToolPalette toolPalette;
 
 	protected void Start() {
 		this.fieldMap = GetComponent<FieldMap>();
+		this.toolPalette = ui.GetWidget(ui.toolPalettePrefab).GetComponent<ToolPalette>();
 	}
 
 	protected void Update() {
@@ -25,14 +27,11 @@ public class FieldMapAction : MonoBehaviour {
 	}
 
 	private void ClickLeft(VectorInt2 pos) {
-		var widget = ui.GetWidget(ui.toolPalettePrefab);
-		if (widget != null) {
-			Tool tool = widget.GetComponent<ToolPalette>().Selected;
-			if (tool == Tool.INSPECTOR) {
-				DoInspector(pos);
-			} else {
-				DoBuilding(tool, pos);
-			}
+		Tool tool = toolPalette.Selected;
+		if (tool == Tool.INSPECTOR) {
+			DoInspector(pos);
+		} else {
+			DoBuilding(tool, pos);
 		}
 	}
 

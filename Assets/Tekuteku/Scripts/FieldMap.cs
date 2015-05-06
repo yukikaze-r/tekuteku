@@ -23,6 +23,9 @@ public class FieldMap : MonoBehaviour {
 	
 	private List<FieldElement> selected = new List<FieldElement>();
 	private GameObject fieldInfomationPanel;
+	private GameObject cursor = null;
+	private ToolPalette toolPalette;
+
 	public event Action<FieldElement, bool> SelectChangeListener = delegate { };
 
 	public int Width {
@@ -67,7 +70,8 @@ public class FieldMap : MonoBehaviour {
 
 
 	protected void Start() {
-		ui.Open(ui.toolPalettePrefab).GetComponent<ToolPalette>().ChangeSlectionListener += OnChangeToolSelection;
+		this.toolPalette = ui.Open(ui.toolPalettePrefab).GetComponent<ToolPalette>();
+		toolPalette.ChangeSlectionListener += OnChangeToolSelection;
 	}
 
 	public void Build(VectorInt2 pos, FieldElementType type) {
@@ -126,12 +130,55 @@ public class FieldMap : MonoBehaviour {
 
 	private void OnChangeToolSelection() {
 		ClearSelectedFieldElements();
+		if (toolPalette.Selected == Tool.SLOPE) {
+			VectorInt2 pos;
+			if (GetCursorMapPosition(out pos)) {
+				cursor = CreateGo(pos, slopePrefab);
+			} else {
+				cursor = CreateGo(pos, slopePrefab);
+				cursor.SetActive(false);
+			}
+			cursor.GetComponent<FieldElementComponent>().MakeCursor();
+		} else {
+			if (cursor != null) {
+				Destroy(cursor);
+				cursor = null;
+			}
+		}
 	}
 
-	private void CreateGo(VectorInt2 pos, GameObject prefab) {
+	protected void Update() {
+		if (cursor != null) {
+			VectorInt2 pos;
+			if (GetCursorMapPosition(out pos)) {
+				var p = cursor.transform.position;
+				cursor.transform.position = this.GetCenter(pos, p.y);
+				cursor.SetActive(true);
+			} else {
+				cursor.SetActive(false);
+			}
+		}
+	}
+
+	private bool GetCursorMapPosition(out VectorInt2 pos) {
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		RaycastHit hit;
+		if (Physics.Raycast(ray, out hit)) {
+			pos = GetMapPosition(hit.point);
+			return true;
+		} else {
+			pos = new VectorInt2();
+			return false;
+		}
+	}
+
+	private GameObject CreateGo(VectorInt2 pos, GameObject prefab) {
 		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter(pos, prefab.transform.position.y), prefab.transform.rotation);
 		child.transform.parent = gameObject.transform;
-		child.GetComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
+		if (posFieldElement.ContainsKey(pos)) {
+			child.GetComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
+		}
+		return child;
 	}
 
 

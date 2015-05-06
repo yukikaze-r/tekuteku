@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class Slope : Road {
 
-	private Direction4 direction = Direction4.UP;
+	private Direction4 direction = Direction4.DOWN;
 
 	public Slope(int roadIndex) : base(roadIndex) {
 	}

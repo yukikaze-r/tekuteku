@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class FieldElementComponent : MonoBehaviour {
 
+	public GameObject mainObject;
+
 	public int name;
 	public List<int> connectionsFrom = new List<int>();
 	public List<int> connectionsTo = new List<int>();
@@ -16,6 +18,9 @@ public class FieldElementComponent : MonoBehaviour {
 	}
 
 	protected void Start() {
+		if (mainObject == null) {
+			mainObject = gameObject;
+		}
 		gameObject.renderer.material.SetFloat("_Shininess", 1f);
 	}
 
@@ -39,9 +44,23 @@ public class FieldElementComponent : MonoBehaviour {
 		fieldElement.FieldMap.SelectChangeListener += OnSelectChange;
 	}
 
+	protected void OnDestroy() {
+		fieldElement.FieldMap.SelectChangeListener -= OnSelectChange;
+	}
+
 	private void OnSelectChange(FieldElement fieldElement, bool isSelect) {
 		if (fieldElement == this.fieldElement) {
 			gameObject.renderer.material.SetFloat("_Shininess", isSelect ? 0f : 1f);
 		}
+	}
+
+	public void MakeCursor() {
+		
+		Material material = new Material(mainObject.renderer.material);
+		material.shader = Shader.Find("Transparent/Diffuse");
+		var c = material.color;
+		c.a = 0.5f;
+		material.color = c;
+		mainObject.renderer.material = material;
 	}
 }
