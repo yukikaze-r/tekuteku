@@ -21,7 +21,7 @@ public class FieldElementComponent : MonoBehaviour {
 		if (mainObject == null) {
 			mainObject = gameObject;
 		}
-		gameObject.renderer.material.SetFloat("_Shininess", 1f);
+		mainObject.renderer.material.SetFloat("_Shininess", 1f);
 	}
 
 	protected void Update() {
@@ -45,7 +45,9 @@ public class FieldElementComponent : MonoBehaviour {
 	}
 
 	protected void OnDestroy() {
-		fieldElement.FieldMap.SelectChangeListener -= OnSelectChange;
+		if (fieldElement != null) {
+			fieldElement.FieldMap.SelectChangeListener -= OnSelectChange;
+		}
 	}
 
 	private void OnSelectChange(FieldElement fieldElement, bool isSelect) {

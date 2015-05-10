@@ -16,7 +16,7 @@ public class FieldMapController : MonoBehaviour {
 	}
 
 	protected void Update() {
-		if (Input.GetMouseButtonUp(0)) {
+		if (InputSystem.main.GetMouseButtonUp(0)) {
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit)) {

@@ -131,6 +131,7 @@ public class FieldMap : MonoBehaviour {
 	private void OnChangeToolSelection() {
 		ClearSelectedFieldElements();
 		if (toolPalette.Selected == Tool.SLOPE) {
+			Debug.Log("OnChangeToolSelection toolPalette.Selected == Tool.SLOPE");
 			VectorInt2 pos;
 			if (GetCursorMapPosition(out pos)) {
 				cursor = CreateGo(pos, slopePrefab);
@@ -140,7 +141,9 @@ public class FieldMap : MonoBehaviour {
 			}
 			cursor.GetComponent<FieldElementComponent>().MakeCursor();
 		} else {
+			Debug.Log("OnChangeToolSelection "+cursor);
 			if (cursor != null) {
+				Debug.Log("Destroy(cursor); " + cursor);
 				Destroy(cursor);
 				cursor = null;
 			}

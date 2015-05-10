@@ -14,29 +14,31 @@ public class ToolPalette : MonoBehaviour {
 		}
 	}
 
-	public void SetInspector() {
-		ChangeTool(Tool.INSPECTOR);
+	public void SetInspector(bool isOn) {
+		ChangeTool(Tool.INSPECTOR, isOn);
 	}
 
-	public void SetHouse() {
-		ChangeTool(Tool.HOUSE);
+	public void SetHouse(bool isOn) {
+		ChangeTool(Tool.HOUSE, isOn);
 	}
 
-	public void SetOffice() {
-		ChangeTool(Tool.OFFICE);
+	public void SetOffice(bool isOn) {
+		ChangeTool(Tool.OFFICE, isOn);
 	}
 
-	public void SetRoad() {
-		ChangeTool(Tool.ROAD);
+	public void SetRoad(bool isOn) {
+		ChangeTool(Tool.ROAD, isOn);
 	}
 
-	public void SetSlope() {
-		ChangeTool(Tool.SLOPE);
+	public void SetSlope(bool isOn) {
+		ChangeTool(Tool.SLOPE, isOn);
 	}
 
-	private void ChangeTool(Tool tool) {
-		this.selected = tool;
-		ChangeSlectionListener();
+	private void ChangeTool(Tool tool, bool isOn) {
+		if (isOn) {
+			this.selected = tool;
+			ChangeSlectionListener();
+		}
 	}
 }
 
