@@ -9,9 +9,26 @@ public class Road : FieldElement {
 
 	public event Action OneWayTypeChangeListener = delegate { };
 
-	public Road(int roadIndex) {
-		this.roadIndex = roadIndex;
+	public Road() {
 		this.oneWayDirection = 0;
+	}
+
+
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+		base.RegisterFieldMap(fieldMap, position);
+
+		roadIndex = fieldMap.Roads.Count();
+		fieldMap.Roads.Add(this);
+
+		foreach (var lv in fieldMap.GetAroundPositions(this.Position)) {
+			FieldElement next = fieldMap.GetFieldElementAt(lv);
+			if (next != null) {
+				this.AddContact(next);
+				next.AddContact(this);
+			}
+		}
+
+		fieldMap.MakeGridPathFinders();
 	}
 
 	public int Index {

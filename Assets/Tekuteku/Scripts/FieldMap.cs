@@ -24,6 +24,7 @@ public class FieldMap : MonoBehaviour {
 	private List<FieldElement> selected = new List<FieldElement>();
 	private GameObject fieldInfomationPanel;
 	private GameObject cursor = null;
+	private Direction4 cursorDirection = Direction4.NONE;
 	private ToolPalette toolPalette;
 
 	public event Action<FieldElement, bool> SelectChangeListener = delegate { };
@@ -76,25 +77,43 @@ public class FieldMap : MonoBehaviour {
 
 	public void Build(VectorInt2 pos, FieldElementType type) {
 
+		FieldElement fieldElement = CreateFieldElement(type);
+		if (fieldElement.IsPuttable(this, pos) == false) {
+			return;
+		}
+
+		fieldElement.RegisterFieldMap(this, pos);
+		CreateGo(pos, GetPrefab(type), cursorDirection);
+		
+	}
+
+	private FieldElement CreateFieldElement(FieldElementType type) {
 		switch (type) {
 			case FieldElementType.HOUSE:
-				AppendBuilding(pos, FieldElementType.HOUSE);
-				CreateGo(pos, housePrefab);
-				break;
+				return new House();
 			case FieldElementType.OFFICE:
-				AppendBuilding(pos, FieldElementType.OFFICE).CalculatePath();
-				CreateGo(pos, officePrefab);
-				break;
+				return new Office();
 			case FieldElementType.ROAD:
-				AppendRoad(pos);
-				CreateGo(pos, roadPrefab);
-				MakeGridPathFinders();
-				break;
+				return new Road();
 			case FieldElementType.SLOPE:
-				AppendSlope(pos);
-				CreateGo(pos, slopePrefab);
-				break;
+				return new Slope();
 		}
+		throw new Exception();
+	}
+
+
+	private GameObject GetPrefab(FieldElementType type) {
+		switch (type) {
+			case FieldElementType.HOUSE:
+				return housePrefab;
+			case FieldElementType.OFFICE:
+				return officePrefab;
+			case FieldElementType.ROAD:
+				return roadPrefab;
+			case FieldElementType.SLOPE:
+				return slopePrefab;
+		}
+		throw new Exception();
 	}
 
 	public void SelectFieldElement(FieldElement element) {
@@ -131,7 +150,6 @@ public class FieldMap : MonoBehaviour {
 	private void OnChangeToolSelection() {
 		ClearSelectedFieldElements();
 		if (toolPalette.Selected == Tool.SLOPE) {
-			Debug.Log("OnChangeToolSelection toolPalette.Selected == Tool.SLOPE");
 			VectorInt2 pos;
 			if (GetCursorMapPosition(out pos)) {
 				cursor = CreateGo(pos, slopePrefab);
@@ -140,12 +158,12 @@ public class FieldMap : MonoBehaviour {
 				cursor.SetActive(false);
 			}
 			cursor.GetComponent<FieldElementComponent>().MakeCursor();
+			cursorDirection = Direction4.UP;
 		} else {
-			Debug.Log("OnChangeToolSelection "+cursor);
 			if (cursor != null) {
-				Debug.Log("Destroy(cursor); " + cursor);
 				Destroy(cursor);
 				cursor = null;
+				cursorDirection = Direction4.NONE;
 			}
 		}
 	}
@@ -159,6 +177,11 @@ public class FieldMap : MonoBehaviour {
 				cursor.SetActive(true);
 			} else {
 				cursor.SetActive(false);
+			}
+
+			if (Input.GetButtonUp("Rotate Cursor Direction")) {
+				cursor.transform.Rotate(Vector3.up, 90f);
+				cursorDirection = cursorDirection.Rotate();
 			}
 		}
 	}
@@ -175,9 +198,12 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	private GameObject CreateGo(VectorInt2 pos, GameObject prefab) {
+	private GameObject CreateGo(VectorInt2 pos, GameObject prefab, Direction4 direction = Direction4.NONE) {
 		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter(pos, prefab.transform.position.y), prefab.transform.rotation);
 		child.transform.parent = gameObject.transform;
+		if (direction != Direction4.NONE) {
+			child.transform.rotation = direction.Quaternion();
+		}
 		if (posFieldElement.ContainsKey(pos)) {
 			child.GetComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
 		}
@@ -190,72 +216,7 @@ public class FieldMap : MonoBehaviour {
 			office.CalculatePath();
 		}
 	}
-
-
-	private Road CreateRoad(VectorInt2 v) {
-		Road r = new Road(roads.Count);
-		r.RegisterFieldMap(this, v);
-		roads.Add(r);
-		return r;
-	}
-
-	private Road AppendRoad(VectorInt2 v) {
-		Road r = CreateRoad(v);
-		foreach (var lv in GetAroundPositions(v)) {
-			FieldElement next;
-			if (posFieldElement.TryGetValue(lv, out next)) {
-				r.AddContact(next);
-				next.AddContact(r);
-			}
-		}
-		return r;
-	}
-
-	private Slope CreateSlope(VectorInt2 v) {
-		Slope r = new Slope(roads.Count);
-		r.RegisterFieldMap(this, v);
-		roads.Add(r);
-		return r;
-	}
-
-	private Slope AppendSlope(VectorInt2 v) {
-		Slope r = CreateSlope(v);
-		foreach (var lv in GetAroundPositions(v)) {
-			// TODO AddContact
-		}
-		return r;
-	}
-
-	private Building CreateBuilding(VectorInt2 v, FieldElementType type) {
-		Building r;
-		switch (type) {
-			case FieldElementType.OFFICE:
-				r = new Building();
-				offices.Add(r);
-				break;
-			case FieldElementType.HOUSE:
-				r = new House();
-				break;
-			default:
-				throw new Exception();
-		}
-		r.RegisterFieldMap(this, v);
-		return r;
-	}
-
-
-	private Building AppendBuilding(VectorInt2 v, FieldElementType type) {
-		Building r = CreateBuilding(v, type);
-		foreach (var lv in GetAroundPositions(v)) {
-			FieldElement next;
-			if (posFieldElement.TryGetValue(lv, out next) && next is Road) {
-				r.AddContact(next);
-				next.AddContact(r);
-			}
-		}
-		return r;
-	}
-
+	
 	public VectorInt2 GetMapPosition(Vector3 v) {
 		return new VectorInt2((int)(v.x), (int)(v.z));
 	}
@@ -271,7 +232,7 @@ public class FieldMap : MonoBehaviour {
 		child.GetComponent<UnityChanController>().FieldMap = this;
 	}
 
-	private IEnumerable<VectorInt2> GetAroundPositions(VectorInt2 org) {
+	public IEnumerable<VectorInt2> GetAroundPositions(VectorInt2 org) {
 		foreach (var lv in org.GetAroundPositions4()) {
 			if (lv.IsInboundRect(0, 0, this.Width, this.Height)) {
 				yield return lv;

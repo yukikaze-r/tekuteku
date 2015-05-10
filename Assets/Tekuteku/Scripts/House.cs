@@ -9,6 +9,11 @@ public class House : Building, IDisposable {
 		interval = new TimerService.Interval(OnTimer, 10f);
 	}
 
+
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+		base.RegisterFieldMap(fieldMap, position);
+	}
+
 	private void OnTimer() {
 		if (ConnectionsFrom.Count() >= 1) {
 			if (this.Vehicles.Count() == 0) {

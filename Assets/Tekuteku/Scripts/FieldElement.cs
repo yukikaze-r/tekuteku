@@ -16,10 +16,21 @@ public abstract class FieldElement {
 		}
 	}
 
-	public void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+	public virtual void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
 		this.FieldMap = fieldMap;
 		this.Position = position;
-		SetPosFieldElement();
+		foreach (var pos in Positions) {
+			fieldMap.PutFieldElement(pos, this);
+		}
+	}
+
+	public bool IsPuttable(FieldMap fieldMap, VectorInt2 position) {
+		foreach (var pos in GetPositions(position)) {
+			if (fieldMap.GetFieldElementAt(pos) != null) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void AddContact(FieldElement r) {
@@ -39,9 +50,15 @@ public abstract class FieldElement {
 			return contacts.OfType<Road>().Where(r => r.IsConnectFrom(this)).OfType<FieldElement>();
 		}
 	}
+	
+	public virtual IEnumerable<VectorInt2> GetPositions(VectorInt2 org) {
+		yield return org;
+	}
 
-	protected virtual void SetPosFieldElement() {
-		this.FieldMap.PutFieldElement(this.Position, this);
+	public IEnumerable<VectorInt2> Positions {
+		get {
+			return GetPositions(this.Position);
+		}
 	}
 
 }

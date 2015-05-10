@@ -32,6 +32,19 @@ public static class Direction4Extention {
 				return Direction4.RIGHT;
 		}
 		throw new System.Exception();
+	}
 
+	public static Direction4 Rotate(this Direction4 d) {
+		switch (d) {
+			case Direction4.UP:
+				return Direction4.RIGHT;
+			case Direction4.RIGHT:
+				return Direction4.DOWN;
+			case Direction4.DOWN:
+				return Direction4.LEFT;
+			case Direction4.LEFT:
+				return Direction4.UP;
+		}
+		throw new System.Exception();
 	}
 }
