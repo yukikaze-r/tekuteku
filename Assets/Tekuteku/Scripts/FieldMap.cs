@@ -13,6 +13,7 @@ public class FieldMap : MonoBehaviour {
 	public GameObject housePrefab;
 	public GameObject officePrefab;
 	public GameObject slopePrefab;
+	public GameObject overpassPrefab;
 	public UI ui;
 
 

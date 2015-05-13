@@ -437,7 +437,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roadPanelPrefab: {fileID: 136946, guid: 26f48efb7e088de4dad19f1d28552cb3, type: 2}
-  toolPalettePrefab: {fileID: 168066, guid: 84d7c886f8b266d4ba99cf40ee302fc6, type: 2}
+  toolPalettePrefab: {fileID: 177032, guid: 84d7c886f8b266d4ba99cf40ee302fc6, type: 2}
 --- !u!1 &609421637
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,6 +504,7 @@ MonoBehaviour:
   housePrefab: {fileID: 100934, guid: 1ff10740a4318354788c6783c46aeff3, type: 2}
   officePrefab: {fileID: 123562, guid: 67fb5b69f3fc6764fa82ea1b9a277923, type: 2}
   slopePrefab: {fileID: 121246, guid: 58ec229a0e0e49149a0e8e2c31becde0, type: 2}
+  overpassPrefab: {fileID: 177804, guid: 3038bea5c4e191545af6c8078962d194, type: 2}
   ui: {fileID: 438239259}
 --- !u!4 &821642913
 Transform:
