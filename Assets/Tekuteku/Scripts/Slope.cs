@@ -13,7 +13,7 @@ public class Slope : Road {
 			return direction;
 		}
 		set {
-			value = direction;
+			direction = value;
 		}
 	}
 

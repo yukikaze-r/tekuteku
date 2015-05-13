@@ -97,7 +97,7 @@ public class FieldMap : MonoBehaviour {
 			case FieldElementType.ROAD:
 				return new Road();
 			case FieldElementType.SLOPE:
-				return new Slope();
+				return new Slope() { Direction = cursorDirection };
 		}
 		throw new Exception();
 	}
