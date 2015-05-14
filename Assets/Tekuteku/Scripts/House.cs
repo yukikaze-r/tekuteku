@@ -10,14 +10,14 @@ public class House : Building, IDisposable {
 	}
 
 
-	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
 		base.RegisterFieldMap(fieldMap, position);
 	}
 
 	private void OnTimer() {
 		if (ConnectionsFrom.Count() >= 1) {
 			if (this.Vehicles.Count() == 0) {
-				this.FieldMap.PutVehicle(this.Position);
+				this.FieldMap.PutVehicle(this.Position.xy);
 			}
 		}
 	}

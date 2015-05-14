@@ -8,6 +8,12 @@ public class Slope : Road {
 	public Slope() {
 	}
 
+	public override int Height {
+		get {
+			return 2;
+		}
+	}
+
 	public Direction4 Direction {
 		get {
 			return direction;
@@ -17,17 +23,23 @@ public class Slope : Road {
 		}
 	}
 
-	public override IEnumerable<VectorInt2> GetPositions(VectorInt2 org) {
+	public override IEnumerable<VectorInt3> GetPositions(VectorInt3 org) {
 		yield return org;
-		yield return org.GetNext(direction);
+		var next = org.xy.GetNext(direction);
+		yield return new VectorInt3(next.x, next.y, org.z + 1);
 	}
 
-	public override bool IsConnectFrom(FieldElement next) {
-		// TODO: 2階部分の接続確認 / 一方通行の処理
-		return this.Position.GetNext(direction.Reverse()) == next.Position;
+	protected override void InitializeContacts() {
+		AddContactsArround(this.Position.xy, this.Position.z);
+		AddContactsArround(this.Position.xy.GetNext(direction), this.Position.z + 1);
 	}
 
-	public override bool IsConnectTo(FieldElement next) {
-		return this.Position.GetNext(direction.Reverse()) == next.Position;
+	public override bool IsConnectFrom(FieldElement contacted) {
+		// TODO: 一方通行の処理
+		return true;
+	}
+
+	public override bool IsConnectTo(FieldElement contacted) {
+		return true;
 	}
 }

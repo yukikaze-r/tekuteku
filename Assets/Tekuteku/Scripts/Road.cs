@@ -14,21 +14,30 @@ public class Road : FieldElement {
 	}
 
 
-	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
 		base.RegisterFieldMap(fieldMap, position);
 
 		roadIndex = fieldMap.Roads.Count();
 		fieldMap.Roads.Add(this);
 
-		foreach (var lv in fieldMap.GetAroundPositions(this.Position)) {
-			FieldElement next = fieldMap.GetFieldElementAt(lv);
+		InitializeContacts();
+
+		fieldMap.MakeGridPathFinders();
+	}
+
+	protected virtual void InitializeContacts() {
+		AddContactsArround(this.Position.xy, this.Position.z);
+	}
+
+	protected void AddContactsArround(VectorInt2 pos, int level) {
+		foreach (var lv in this.FieldMap.GetAroundPositions(pos)) {
+			FieldElement next = this.FieldMap.GetFieldElementAt(lv, level);
 			if (next != null) {
 				this.AddContact(next);
 				next.AddContact(this);
 			}
 		}
 
-		fieldMap.MakeGridPathFinders();
 	}
 
 	public int Index {
@@ -57,12 +66,12 @@ public class Road : FieldElement {
 		}
 	}
 
-	public virtual bool IsConnectFrom(FieldElement from) {
-		return this.IsOneWay == false || from.Position != this.Position.GetNext(this.OneWayDirection);
+	public virtual bool IsConnectFrom(FieldElement contacted) {
+		return this.IsOneWay == false || contacted.Position.xy != this.Position.xy.GetNext(this.OneWayDirection);
 	}
 
-	public virtual bool IsConnectTo(FieldElement to) {
-		return this.IsOneWay == false || to.Position != this.Position.GetNext(this.OneWayDirection.Reverse());
+	public virtual bool IsConnectTo(FieldElement contacted) {
+		return this.IsOneWay == false || contacted.Position.xy != this.Position.xy.GetNext(this.OneWayDirection.Reverse());
 	}
 
 	public override IEnumerable<FieldElement> ConnectionsFrom {

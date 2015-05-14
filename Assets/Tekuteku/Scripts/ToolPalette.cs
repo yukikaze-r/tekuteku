@@ -7,11 +7,23 @@ public class ToolPalette : MonoBehaviour {
 	public event Action ChangeSlectionListener = delegate { };
 
 	private Tool selected = Tool.INSPECTOR;
+	private int level = 0;
 
 	public Tool Selected {
 		get {
 			return selected;
 		}
+	}
+
+	public int Level {
+		get {
+			return level;
+		}
+	}
+
+	public void SetLevel(int level) {
+		this.level = level;
+		ChangeSlectionListener();
 	}
 
 	public void SetInspector(bool isOn) {

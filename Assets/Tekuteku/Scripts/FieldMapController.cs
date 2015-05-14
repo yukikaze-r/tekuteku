@@ -28,17 +28,15 @@ public class FieldMapController : MonoBehaviour {
 
 	private void ClickLeft(VectorInt2 pos) {
 		Tool tool = toolPalette.Selected;
+		var pos3 = new VectorInt3(pos.x, pos.y, toolPalette.Level);
 		if (tool == Tool.INSPECTOR) {
-			DoInspector(pos);
+			DoInspector(pos3);
 		} else {
-			DoBuilding(tool, pos);
+			DoBuilding(tool, pos3);
 		}
 	}
 
-	private void DoBuilding(Tool tool, VectorInt2 pos) {
-		if (fieldMap.GetFieldElementAt(pos) != null) {
-			return;
-		}
+	private void DoBuilding(Tool tool, VectorInt3 pos) {
 		switch (tool) {
 			case Tool.HOUSE:
 				fieldMap.Build(pos, FieldElementType.HOUSE);
@@ -55,13 +53,11 @@ public class FieldMapController : MonoBehaviour {
 		}
 	}
 
-	private void DoInspector(VectorInt2 pos) {
+	private void DoInspector(VectorInt3 pos) {
 
-		FieldElement element = fieldMap.GetFieldElementAt(pos);
+		FieldElement element = fieldMap.GetFieldElementAt(pos.xy, pos.z);
 		if (element != null) {
 			fieldMap.SelectFieldElement(element);
-
-
 		} else {
 			fieldMap.ClearSelectedFieldElements();
 

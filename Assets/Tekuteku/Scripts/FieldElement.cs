@@ -5,7 +5,12 @@ using System.Linq;
 public abstract class FieldElement {
 
 	public FieldMap FieldMap { get; private set; }
-	public VectorInt2 Position { get; private set; }
+	public VectorInt3 Position { get; private set; }
+	public virtual int Height {
+		get {
+			return 1;
+		}
+	}
 
 	protected List<FieldElement> contacts = new List<FieldElement>();
 	
@@ -16,7 +21,7 @@ public abstract class FieldElement {
 		}
 	}
 
-	public virtual void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+	public virtual void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
 		this.FieldMap = fieldMap;
 		this.Position = position;
 		foreach (var pos in Positions) {
@@ -24,9 +29,9 @@ public abstract class FieldElement {
 		}
 	}
 
-	public bool IsPuttable(FieldMap fieldMap, VectorInt2 position) {
+	public bool IsPuttable(FieldMap fieldMap, VectorInt3 position) {
 		foreach (var pos in GetPositions(position)) {
-			if (fieldMap.GetFieldElementAt(pos) != null) {
+			if (fieldMap.ContainsFieldElement(pos.xy, position.z, this.Height)) {
 				return false;
 			}
 		}
@@ -51,11 +56,11 @@ public abstract class FieldElement {
 		}
 	}
 	
-	public virtual IEnumerable<VectorInt2> GetPositions(VectorInt2 org) {
+	public virtual IEnumerable<VectorInt3> GetPositions(VectorInt3 org) {
 		yield return org;
 	}
 
-	public IEnumerable<VectorInt2> Positions {
+	public IEnumerable<VectorInt3> Positions {
 		get {
 			return GetPositions(this.Position);
 		}

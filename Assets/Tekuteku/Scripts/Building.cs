@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class Building : FieldElement {
 
@@ -12,11 +13,15 @@ public class Building : FieldElement {
 	}
 
 
-	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt2 position) {
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
+		if (position.z != 0) {
+			throw new Exception("position.z:" + position.z);
+		}
+
 		base.RegisterFieldMap(fieldMap, position);
 
-		foreach (var lv in fieldMap.GetAroundPositions(position)) {
-			FieldElement next = fieldMap.GetFieldElementAt(lv);
+		foreach (var lv in fieldMap.GetAroundPositions(position.xy)) {
+			FieldElement next = fieldMap.GetFieldElementAt(lv,0);
 			if (next != null && next is Road) {
 				this.AddContact(next);
 				next.AddContact(this);

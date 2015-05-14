@@ -18,7 +18,7 @@ public class FieldMap : MonoBehaviour {
 
 
 	private List<Road> roads = new List<Road>();
-	private Dictionary<VectorInt2, FieldElement> posFieldElement = new Dictionary<VectorInt2, FieldElement>();
+	private Dictionary<VectorInt2, FieldElement[]> posFieldElements = new Dictionary<VectorInt2, FieldElement[]>();
 	private List<Building> offices = new List<Building>();
 
 	
@@ -55,18 +55,42 @@ public class FieldMap : MonoBehaviour {
 		}
 	}
 
-	public FieldElement GetFieldElementAt(VectorInt2 pos) {
-		FieldElement result;
-		if (posFieldElement.TryGetValue(pos, out result)) {
-			return result;
+	public FieldElement GetFieldElementAt(VectorInt2 pos, int level) {
+		FieldElement [] array;
+		if (posFieldElements.TryGetValue(pos, out array)) {
+			if (level < array.Count()) {
+				return array[level];
+			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
-	public void PutFieldElement(VectorInt2 pos, FieldElement element) {
-		posFieldElement[pos] = element;
+	public bool ContainsFieldElement(VectorInt2 pos, int level = 0, int height = int.MaxValue) {
+		FieldElement[] array;
+		if (posFieldElements.TryGetValue(pos, out array)) {
+			for (int l = level; l < level + height; l++) {
+				if (l >= array.Count()) {
+					break;
+				}
+				if (array[l] != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public void PutFieldElement(VectorInt3 pos, FieldElement element) {
+		FieldElement [] result;
+		if (posFieldElements.TryGetValue(pos.xy, out result)) {
+			if (result.Count() <= pos.z) {
+				Array.Resize(ref result, pos.z + 1);
+			}
+		} else {
+			result = new FieldElement[pos.z + 1];
+			posFieldElements[pos.xy] = result;
+		}
+		result[pos.z] = element;
 	}
 
 
@@ -76,7 +100,7 @@ public class FieldMap : MonoBehaviour {
 		toolPalette.ChangeSlectionListener += OnChangeToolSelection;
 	}
 
-	public void Build(VectorInt2 pos, FieldElementType type) {
+	public void Build(VectorInt3 pos, FieldElementType type) {
 
 		FieldElement fieldElement = CreateFieldElement(type);
 		if (fieldElement.IsPuttable(this, pos) == false) {
@@ -84,8 +108,8 @@ public class FieldMap : MonoBehaviour {
 		}
 
 		fieldElement.RegisterFieldMap(this, pos);
-		CreateGo(pos, GetPrefab(type), cursorDirection);
-		
+		var go = CreateGo(pos.xy, GetPrefab(type, pos.z), cursorDirection);
+		go.GetComponent<FieldElementComponent>().AcceptModel(fieldElement);
 	}
 
 	private FieldElement CreateFieldElement(FieldElementType type) {
@@ -103,14 +127,14 @@ public class FieldMap : MonoBehaviour {
 	}
 
 
-	private GameObject GetPrefab(FieldElementType type) {
+	private GameObject GetPrefab(FieldElementType type, int level) {
 		switch (type) {
 			case FieldElementType.HOUSE:
 				return housePrefab;
 			case FieldElementType.OFFICE:
 				return officePrefab;
 			case FieldElementType.ROAD:
-				return roadPrefab;
+				return level == 0 ? roadPrefab : overpassPrefab;
 			case FieldElementType.SLOPE:
 				return slopePrefab;
 		}
@@ -205,9 +229,6 @@ public class FieldMap : MonoBehaviour {
 		if (direction != Direction4.NONE) {
 			child.transform.rotation = direction.Quaternion();
 		}
-		if (posFieldElement.ContainsKey(pos)) {
-			child.GetComponent<FieldElementComponent>().AcceptModel(posFieldElement[pos]);
-		}
 		return child;
 	}
 
@@ -244,9 +265,9 @@ public class FieldMap : MonoBehaviour {
 
 
 public enum FieldElementType {
-	NONE = 0,
-	ROAD = 1,
-	HOUSE = 2,
-	OFFICE = 3,
-	SLOPE = 4,
+	NONE,
+	ROAD,
+	SLOPE,
+	HOUSE,
+	OFFICE,
 }

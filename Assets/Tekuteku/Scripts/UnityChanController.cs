@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,6 +24,7 @@ public class UnityChanController : MonoBehaviour {
 	private Quaternion toRotation;
 	private float distanceInFieldElement;
 
+	private int currentLevel = 0;
 	private FieldElement currentFieldElement;
 	private FieldElement nextFieldElement;
 	private Building goal = null;
@@ -46,9 +47,15 @@ public class UnityChanController : MonoBehaviour {
 		isSetRotation = false;
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
-		
+
+
 		var offices = fieldMap.Offices;
-		var goalOfficeIndex = Random.Range(0, offices.Count);
+		if (offices.Count == 0) {
+			Destroy(gameObject);
+			return;
+		}
+
+		var goalOfficeIndex = UnityEngine.Random.Range(0, offices.Count);
 
 		goal = offices[goalOfficeIndex];
 
@@ -98,10 +105,17 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void Walk() {
-		if (currentFieldElement != null) {
-			currentFieldElement.Vehicles.Remove(this);
+		if (nextFieldElement != null) {
+			currentLevel = nextFieldElement.Position.z;
 		}
-		currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition);
+		currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, currentLevel);
+		if (nextFieldElement != null && currentFieldElement != nextFieldElement) {
+			return; // たぶんまだ次のFieldElementに来てない。(1インスタンスで2マス以上ある道路)
+		}
+
+		if (currentFieldElement != null) {
+			currentFieldElement.Vehicles.Remove(this); // TODO マス+高度単位にしないと
+		}
 		if (currentFieldElement == goal) {
 			Destroy(gameObject);
 			return;
@@ -109,7 +123,7 @@ public class UnityChanController : MonoBehaviour {
 
 		currentFieldElement.Vehicles.Add(this);
 		nextFieldElement = GetNextFieldElement(currentFieldElement);
-		MoveTo((nextFieldElement.Position - currentFieldElement.Position).Direction4);
+		MoveTo((nextFieldElement.Position - currentFieldElement.Position).xy.Direction4);
 	}
 
 	private FieldElement GetNextFieldElement(FieldElement fieldElement) {
