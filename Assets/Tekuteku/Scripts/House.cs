@@ -17,7 +17,7 @@ public class House : Building, IDisposable {
 	private void OnTimer() {
 		if (ConnectionsFrom.Count() >= 1) {
 			if (this.Vehicles.Count() == 0) {
-				this.FieldMap.PutVehicle(this.Position.xy);
+				this.FieldMap.CreateVehicleGo(this.Position.xy);
 			}
 		}
 	}

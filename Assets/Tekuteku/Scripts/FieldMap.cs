@@ -21,7 +21,6 @@ public class FieldMap : MonoBehaviour {
 	private Dictionary<VectorInt2, FieldElement[]> posFieldElements = new Dictionary<VectorInt2, FieldElement[]>();
 	private List<Building> offices = new List<Building>();
 
-	
 	private List<FieldElement> selected = new List<FieldElement>();
 	private GameObject fieldInfomationPanel;
 	private GameObject cursor = null;
@@ -248,7 +247,7 @@ public class FieldMap : MonoBehaviour {
 		return new Vector3(v.x + 0.5f, y, v.y+0.5f);
 	}
 
-	public void PutVehicle(VectorInt2 pos) {
+	public void CreateVehicleGo(VectorInt2 pos) {
 		GameObject child = (GameObject)Instantiate(vehiclePrefab, GetCenter(pos, vehiclePrefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
 		child.GetComponent<UnityChanController>().FieldMap = this;

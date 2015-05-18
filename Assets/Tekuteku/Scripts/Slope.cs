@@ -8,6 +8,14 @@ public class Slope : Road {
 	public Slope() {
 	}
 
+	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
+		if (position.z != 0) {
+			throw new Exception("position.z: "+position.z);
+		}
+
+		base.RegisterFieldMap(fieldMap, position);
+	}
+
 	public override int Height {
 		get {
 			return 2;

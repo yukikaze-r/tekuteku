@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class FieldElementComponent : MonoBehaviour {
 
@@ -8,6 +9,8 @@ public class FieldElementComponent : MonoBehaviour {
 	public int name;
 	public List<int> connectionsFrom = new List<int>();
 	public List<int> connectionsTo = new List<int>();
+	public Direction4 direction;
+	public int vehicles;
 
 	private FieldElement fieldElement;
 
@@ -35,6 +38,11 @@ public class FieldElementComponent : MonoBehaviour {
 			foreach (var c in fieldElement.ConnectionsTo) {
 				connectionsTo.Add(c.GetHashCode());
 			}
+			if (fieldElement is Slope) {
+				direction = ((Slope)fieldElement).Direction;
+			}
+			vehicles = fieldElement.Vehicles.Count();
+
 		}
 
 	}

@@ -24,7 +24,9 @@ public class UnityChanController : MonoBehaviour {
 	private Quaternion toRotation;
 	private float distanceInFieldElement;
 
-	private int currentLevel = 0;
+	public int currentFieldElementHash;
+	public int nextFieldElementHash;
+
 	private FieldElement currentFieldElement;
 	private FieldElement nextFieldElement;
 	private Building goal = null;
@@ -66,6 +68,8 @@ public class UnityChanController : MonoBehaviour {
 
 	protected void Update() {
 		animator.SetFloat(speedId, speed);
+		currentFieldElementHash = currentFieldElement != null ? currentFieldElement.GetHashCode() : 0;
+		nextFieldElementHash = nextFieldElement != null ? nextFieldElement.GetHashCode() : 0;
 	}
 
 	protected void FixedUpdate() {
@@ -105,17 +109,20 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void Walk() {
-		if (nextFieldElement != null) {
-			currentLevel = nextFieldElement.Position.z;
-		}
-		currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, currentLevel);
-		if (nextFieldElement != null && currentFieldElement != nextFieldElement) {
-			return; // たぶんまだ次のFieldElementに来てない。(1インスタンスで2マス以上ある道路)
+		if (currentFieldElement != null) {
+			var c = this.CurrentMapPosition;
+			foreach (var pos in currentFieldElement.Positions) {
+				if (c == new VectorInt2(pos.x, pos.y)) {
+					return;
+				}
+			}
+
+			currentFieldElement.Vehicles.Remove(this);
+			currentFieldElement = nextFieldElement;
+		} else {
+			currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, 0);
 		}
 
-		if (currentFieldElement != null) {
-			currentFieldElement.Vehicles.Remove(this); // TODO マス+高度単位にしないと
-		}
 		if (currentFieldElement == goal) {
 			Destroy(gameObject);
 			return;
@@ -130,14 +137,7 @@ public class UnityChanController : MonoBehaviour {
 		if (goal.ConnectionsFrom.Contains(fieldElement)) {
 			return goal;
 		}
-		FieldElement result = goal.PathFinder.GetNextRoad(fieldElement);
-		if (currentFieldElement.ConnectionsFrom.Contains(result) == false) {
-			goal.CalculatePath();
-			return goal.PathFinder.GetNextRoad(fieldElement);
-		}
-		else {
-			return result;
-		}
+		return goal.PathFinder.GetNextRoad(fieldElement);
 	}
 
 	private void MoveTo(Direction4 d) {

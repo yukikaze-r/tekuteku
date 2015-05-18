@@ -24,6 +24,8 @@ public class RoadComponent : FieldElementComponent {
 	}
 
 	void OnDestroy() {
-		road.OneWayTypeChangeListener -= OnOneWayChange;
+		if (road != null) {
+			road.OneWayTypeChangeListener -= OnOneWayChange;
+		}
 	}
 }
