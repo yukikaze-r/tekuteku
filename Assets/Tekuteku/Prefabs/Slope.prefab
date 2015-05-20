@@ -11,6 +11,7 @@ GameObject:
   - 33: {fileID: 3321246}
   - 23: {fileID: 2321246}
   - 95: {fileID: 9521246}
+  - 64: {fileID: 6407960}
   m_Layer: 0
   m_Name: MainObject
   m_TagString: Untagged
@@ -86,6 +87,19 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 121244}
   m_Mesh: {fileID: 4300000, guid: b871f9a8e4c45e34c9100d2b3b56437c, type: 3}
+--- !u!64 &6407960
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 121244}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_SmoothSphereCollisions: 0
+  m_Convex: 0
+  m_Mesh: {fileID: 4300000, guid: b871f9a8e4c45e34c9100d2b3b56437c, type: 3}
 --- !u!95 &9521246
 Animator:
   serializedVersion: 3
@@ -116,6 +130,8 @@ MonoBehaviour:
   name: 0
   connectionsFrom: 
   connectionsTo: 
+  direction: 0
+  vehicles: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
