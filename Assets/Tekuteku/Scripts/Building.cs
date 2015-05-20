@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Building : FieldElement {
 
@@ -20,12 +21,22 @@ public class Building : FieldElement {
 
 		base.RegisterFieldMap(fieldMap, position);
 
-		foreach (var lv in fieldMap.GetAroundPositions(position.xy)) {
-			FieldElement next = fieldMap.GetFieldElementAt(lv,0);
-			if (next != null && next is Road) {
-				this.AddContact(next);
-				next.AddContact(this);
-			}
+		foreach (var contactedRoad in GetContactedRoads()) {
+			this.AddContact(contactedRoad);
+			contactedRoad.AddContact(this);
+		}
+	}
+
+	private IEnumerable<Road> GetContactedRoads() {
+		return this.ContactedPositions
+			.Select(pos => this.FieldMap.GetFieldElementAt(pos.xy, pos.z))
+			.Where(e => e != null).Distinct().OfType<Road>()
+			.Where(r => r.IsContactableTo(this));
+	}
+
+	public override IEnumerable<VectorInt3> ContactedPositions {
+		get {
+			return this.Positions.SelectMany(pos => this.FieldMap.GetAroundPositions(pos)).Distinct();
 		}
 	}
 

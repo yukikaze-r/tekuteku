@@ -70,6 +70,9 @@ public class UnityChanController : MonoBehaviour {
 		animator.SetFloat(speedId, speed);
 		currentFieldElementHash = currentFieldElement != null ? currentFieldElement.GetHashCode() : 0;
 		nextFieldElementHash = nextFieldElement != null ? nextFieldElement.GetHashCode() : 0;
+		var pos = transform.position;
+		pos.y = currentFieldElement.GetVehicleAltitude(new Vector2(pos.x, pos.z));
+		transform.position = pos;
 	}
 
 	protected void FixedUpdate() {
@@ -109,7 +112,9 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	private void Walk() {
-		if (currentFieldElement != null) {
+		if (currentFieldElement == null) {
+			currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, 0);
+		} else {
 			var c = this.CurrentMapPosition;
 			foreach (var pos in currentFieldElement.Positions) {
 				if (c == new VectorInt2(pos.x, pos.y)) {
@@ -119,8 +124,6 @@ public class UnityChanController : MonoBehaviour {
 
 			currentFieldElement.Vehicles.Remove(this);
 			currentFieldElement = nextFieldElement;
-		} else {
-			currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, 0);
 		}
 
 		if (currentFieldElement == goal) {

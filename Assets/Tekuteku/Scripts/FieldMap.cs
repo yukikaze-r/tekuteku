@@ -84,6 +84,7 @@ public class FieldMap : MonoBehaviour {
 		if (posFieldElements.TryGetValue(pos.xy, out result)) {
 			if (result.Count() <= pos.z) {
 				Array.Resize(ref result, pos.z + 1);
+				posFieldElements[pos.xy] = result;
 			}
 		} else {
 			result = new FieldElement[pos.z + 1];
@@ -257,6 +258,14 @@ public class FieldMap : MonoBehaviour {
 		foreach (var lv in org.GetAroundPositions4()) {
 			if (lv.IsInboundRect(0, 0, this.Width, this.Height)) {
 				yield return lv;
+			}
+		}
+	}
+	
+	public IEnumerable<VectorInt3> GetAroundPositions(VectorInt3 org) {
+		foreach (var lv in org.xy.GetAroundPositions4()) {
+			if (lv.IsInboundRect(0, 0, this.Width, this.Height)) {
+				yield return new VectorInt3(lv.x, lv.y, org.z);
 			}
 		}
 	}

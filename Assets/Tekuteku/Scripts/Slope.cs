@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Slope : Road {
 
@@ -37,17 +38,28 @@ public class Slope : Road {
 		yield return new VectorInt3(next.x, next.y, org.z + 1);
 	}
 
-	protected override void InitializeContacts() {
-		AddContactsArround(this.Position.xy, this.Position.z);
-		AddContactsArround(this.Position.xy.GetNext(direction), this.Position.z + 1);
+	public override IEnumerable<VectorInt3> ContactedPositions {
+		get {
+			yield return this.Position.xy.GetNext(direction.Reverse()).z(this.Position.z);
+			yield return this.Position.xy.GetNext(direction, 2).z(this.Position.z + 1);
+		}
 	}
 
 	public override bool IsConnectFrom(FieldElement contacted) {
-		// TODO: 一方通行の処理
 		return true;
 	}
 
 	public override bool IsConnectTo(FieldElement contacted) {
 		return true;
+	}
+
+	public override float GetVehicleAltitude(Vector2 pos) {
+		RaycastHit hit;
+		if (Physics.Raycast(new Vector3(pos.x, 1000f, pos.y), new Vector3(0f, -1f, 0f), out hit, Mathf.Infinity)) {
+			return hit.point.y;
+		}
+		else {
+			return base.GetVehicleAltitude(pos);
+		}
 	}
 }

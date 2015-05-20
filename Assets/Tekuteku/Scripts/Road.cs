@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class Road : FieldElement {
 
@@ -20,24 +21,18 @@ public class Road : FieldElement {
 		roadIndex = fieldMap.Roads.Count();
 		fieldMap.Roads.Add(this);
 
-		InitializeContacts();
-
 		fieldMap.MakeGridPathFinders();
 	}
 
-	protected virtual void InitializeContacts() {
-		AddContactsArround(this.Position.xy, this.Position.z);
+
+	public override IEnumerable<VectorInt3> ContactedPositions {
+		get {
+			return this.FieldMap.GetAroundPositions(this.Position);
+		}
 	}
 
-	protected void AddContactsArround(VectorInt2 pos, int level) {
-		foreach (var lv in this.FieldMap.GetAroundPositions(pos)) {
-			FieldElement next = this.FieldMap.GetFieldElementAt(lv, level);
-			if (next != null) {
-				this.AddContact(next);
-				next.AddContact(this);
-			}
-		}
-
+	public bool IsContactableTo(FieldElement fieldElement) {
+		return this.ContactedPositions.Intersect(fieldElement.Positions).Count() >= 1;
 	}
 
 	public int Index {
@@ -85,4 +80,9 @@ public class Road : FieldElement {
 			return base.ConnectionsFrom.Where(IsConnectTo);
 		}
 	}
+
+	public override float GetVehicleAltitude(Vector2 pos) {
+		return this.Position.z == 0 ? 0.05f : 0.95f;
+	}
+
 }

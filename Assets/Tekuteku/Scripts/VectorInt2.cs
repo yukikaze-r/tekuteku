@@ -84,4 +84,8 @@ public struct VectorInt2 {
 	public static bool operator !=(VectorInt2 left, VectorInt2 right) {
         return !left.Equals (right);
     }
+
+	public VectorInt3 z(int z) {
+		return new VectorInt3(x, y, z);
+	}
 }

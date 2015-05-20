@@ -24,9 +24,20 @@ public abstract class FieldElement {
 	public virtual void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
 		this.FieldMap = fieldMap;
 		this.Position = position;
-		foreach (var pos in Positions) {
+		foreach (var pos in this.Positions) {
 			fieldMap.PutFieldElement(pos, this);
 		}
+		foreach (var contactedRoad in GetContactedRoads()) {
+			this.AddContact(contactedRoad);
+			contactedRoad.AddContact(this);
+		}
+	}
+
+	private IEnumerable<Road> GetContactedRoads() {
+		return this.ContactedPositions
+			.Select(pos => this.FieldMap.GetFieldElementAt(pos.xy, pos.z))
+			.Where(e => e != null).Distinct().OfType<Road>()
+			.Where(r => r.IsContactableTo(this));
 	}
 
 	public bool IsPuttable(FieldMap fieldMap, VectorInt3 position) {
@@ -38,10 +49,14 @@ public abstract class FieldElement {
 		return true;
 	}
 
+	public abstract IEnumerable<VectorInt3> ContactedPositions {
+		get;
+	}
+
+
 	public void AddContact(FieldElement r) {
 		contacts.Add(r);
 	}
-
 
 	public virtual IEnumerable<FieldElement> ConnectionsFrom {
 		get {
@@ -64,6 +79,10 @@ public abstract class FieldElement {
 		get {
 			return GetPositions(this.Position);
 		}
+	}
+
+	public virtual  float GetVehicleAltitude(Vector2 pos) {
+		return 0.05f;
 	}
 
 }
