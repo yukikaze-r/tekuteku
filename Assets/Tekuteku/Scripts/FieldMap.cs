@@ -100,8 +100,8 @@ public class FieldMap : MonoBehaviour {
 		toolPalette.ChangeSlectionListener += OnChangeToolSelection;
 	}
 
-	public void Build(VectorInt3 pos, FieldElementType type) {
-
+	public void Build(VectorInt3 pos, Tool tool) {
+		FieldElementType type = GetFieldElementTypeFromBuildingTool(tool);
 		FieldElement fieldElement = CreateFieldElement(type);
 		if (fieldElement.IsPuttable(this, pos) == false) {
 			return;
@@ -141,6 +141,21 @@ public class FieldMap : MonoBehaviour {
 		throw new Exception();
 	}
 
+	public static FieldElementType GetFieldElementTypeFromBuildingTool(Tool tool) {
+		switch (tool) {
+			case Tool.HOUSE:
+				return FieldElementType.HOUSE;
+			case Tool.OFFICE:
+				return FieldElementType.OFFICE;
+			case Tool.ROAD:
+				return FieldElementType.ROAD;
+			case Tool.SLOPE:
+				return FieldElementType.SLOPE;
+		}
+		throw new Exception(tool.ToString());
+
+	}
+
 	public void SelectFieldElement(FieldElement element) {
 		if (fieldInfomationPanel != null) {
 			Destroy(fieldInfomationPanel);
@@ -174,22 +189,24 @@ public class FieldMap : MonoBehaviour {
 
 	private void OnChangeToolSelection() {
 		ClearSelectedFieldElements();
-		if (toolPalette.Selected == Tool.SLOPE) {
+
+		if (cursor != null) {
+			Destroy(cursor);
+			cursor = null;
+			cursorDirection = Direction4.NONE;
+		}
+
+		if (toolPalette.Selected != Tool.INSPECTOR) {
 			VectorInt2 pos;
+			GameObject prefab = GetPrefab(GetFieldElementTypeFromBuildingTool(toolPalette.Selected), toolPalette.Level);
 			if (GetCursorMapPosition(out pos)) {
-				cursor = CreateGo(pos, slopePrefab);
+				cursor = CreateGo(pos, prefab);
 			} else {
-				cursor = CreateGo(pos, slopePrefab);
+				cursor = CreateGo(pos, prefab);
 				cursor.SetActive(false);
 			}
 			cursor.GetComponent<FieldElementComponent>().MakeCursor();
 			cursorDirection = Direction4.UP;
-		} else {
-			if (cursor != null) {
-				Destroy(cursor);
-				cursor = null;
-				cursorDirection = Direction4.NONE;
-			}
 		}
 	}
 

@@ -65,7 +65,9 @@ public class FieldElementComponent : MonoBehaviour {
 	}
 
 	public void MakeCursor() {
-		
+		if (mainObject == null) {
+			mainObject = gameObject;
+		}
 		Material material = new Material(mainObject.renderer.material);
 		material.shader = Shader.Find("Transparent/Diffuse");
 		var c = material.color;
