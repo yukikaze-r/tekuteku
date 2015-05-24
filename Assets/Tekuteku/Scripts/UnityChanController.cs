@@ -76,6 +76,11 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	protected void FixedUpdate() {
+		if (nextFieldElement == null) {
+			FindNextRoute();
+			return;
+		}
+
 		if (nextFieldElement != null && nextFieldElement.Vehicles.Count() >= 1) {
 			FieldElement nextNext = this.GetNextFieldElement(nextFieldElement);
 			if (nextNext == currentFieldElement) {
@@ -132,8 +137,14 @@ public class UnityChanController : MonoBehaviour {
 		}
 
 		currentFieldElement.Vehicles.Add(this);
+		FindNextRoute();
+	}
+
+	private void FindNextRoute() {
 		nextFieldElement = GetNextFieldElement(currentFieldElement);
-		MoveTo((nextFieldElement.Position - currentFieldElement.Position).xy.Direction4);
+		if (nextFieldElement != null) {
+			MoveTo((nextFieldElement.Position - currentFieldElement.Position).xy.Direction4);
+		}
 	}
 
 	private FieldElement GetNextFieldElement(FieldElement fieldElement) {

@@ -77,7 +77,7 @@ public class Road : FieldElement {
 
 	public override IEnumerable<FieldElement> ConnectionsTo {
 		get {
-			return base.ConnectionsFrom.Where(IsConnectTo);
+			return base.ConnectionsTo.Where(IsConnectTo);
 		}
 	}
 

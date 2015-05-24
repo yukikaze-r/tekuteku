@@ -10,7 +10,9 @@ public class RoadComponent : FieldElementComponent {
 	// Use this for initialization
 	void Start () {
 		road = (Road) GetComponent<FieldElementComponent>().FieldElement;
-		road.OneWayTypeChangeListener += OnOneWayChange;
+		if (road != null) {
+			road.OneWayTypeChangeListener += OnOneWayChange;
+		}
 	}
 	
 	private void OnOneWayChange() {
