@@ -6,6 +6,8 @@ using System.Linq;
 [RequireComponent(typeof(Animator))]
 public class UnityChanController : MonoBehaviour {
 
+	private const float DEADLOCK_DETECTION_TIME = 2f;
+
 	private FieldMap fieldMap;
 
 	public FieldMap FieldMap {
@@ -31,6 +33,9 @@ public class UnityChanController : MonoBehaviour {
 	private FieldElement nextFieldElement;
 	private Building goal = null;
 
+	private float stopTimeForDeadlockDetection;
+	private UnityChanController blockedBy;
+
 
 	private VectorInt2 CurrentMapPosition {
 		get {
@@ -44,6 +49,11 @@ public class UnityChanController : MonoBehaviour {
 		}
 	}
 
+	public UnityChanController BlockedBy {
+		get {
+			return blockedBy;
+		}
+	}
 
 	protected void Start() {
 		isSetRotation = false;
@@ -89,11 +99,18 @@ public class UnityChanController : MonoBehaviour {
 			}
 			foreach (var vehicle in nextFieldElement.Vehicles) {
 				if (vehicle.NextFieldElement == nextNext) {
+					blockedBy = vehicle;
 					speed = 0f;
+					stopTimeForDeadlockDetection += Time.deltaTime;
+					if (stopTimeForDeadlockDetection >= DEADLOCK_DETECTION_TIME) {
+						DetectDeadLock();
+						stopTimeForDeadlockDetection = 0f;
+					}
 					return;
 				}
 			}
 		}
+		stopTimeForDeadlockDetection = 0f;
 
 		VectorInt2 oldMapPosition = this.CurrentMapPosition;
 		var pos = gameObject.transform.position;
@@ -114,6 +131,26 @@ public class UnityChanController : MonoBehaviour {
 			Walk();
 		}
 
+	}
+
+	public void DetectDeadLock() {
+		var marked = new HashSet<UnityChanController>();
+		UnityChanController carsor = this;
+		do {
+			if (marked.Contains(carsor)) {
+				Debug.Log("dead lock detected");
+				carsor.Destroy();
+				return;
+			}
+			marked.Add(carsor);
+			carsor = carsor.BlockedBy;
+		}
+		while (carsor != null);
+	}
+
+	public void Destroy() {
+		currentFieldElement.Vehicles.Remove(this);
+		Destroy(gameObject);
 	}
 
 	private void Walk() {
