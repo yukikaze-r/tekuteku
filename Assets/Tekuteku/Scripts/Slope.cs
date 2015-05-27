@@ -62,4 +62,10 @@ public class Slope : Road {
 			return base.GetVehicleAltitude(pos);
 		}
 	}
+
+	public override int Cost {
+		get {
+			return 2;
+		}
+	}
 }

@@ -46,4 +46,10 @@ public class OneTileRoad : Road {
 	public override float GetVehicleAltitude(Vector2 pos) {
 		return this.Position.z == 0 ? 0.05f : 0.95f;
 	}
+
+	public override int Cost {
+		get {
+			return ConnectionsFrom.Count();
+		}
+	}
 }

@@ -10,6 +10,14 @@ abstract public class Road : FieldElement {
 	public Road() {
 	}
 
+	abstract public int Cost {
+		get;
+	}
+
+	abstract public bool IsConnectFrom(FieldElement contacted);
+
+	abstract public bool IsConnectTo(FieldElement contacted);
+
 	public override void RegisterFieldMap(FieldMap fieldMap, VectorInt3 position) {
 		base.RegisterFieldMap(fieldMap, position);
 
@@ -30,9 +38,6 @@ abstract public class Road : FieldElement {
 			return roadIndex;
 		}
 	}
-
-	abstract public bool IsConnectFrom(FieldElement contacted);
-	abstract public bool IsConnectTo(FieldElement contacted);
 
 
 	public override IEnumerable<FieldElement> ConnectionsFrom {

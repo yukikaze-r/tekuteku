@@ -110,6 +110,7 @@ public class UnityChanController : MonoBehaviour {
 				}
 			}
 		}
+		blockedBy = null;
 		stopTimeForDeadlockDetection = 0f;
 
 		VectorInt2 oldMapPosition = this.CurrentMapPosition;

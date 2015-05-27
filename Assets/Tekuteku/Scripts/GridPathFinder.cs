@@ -26,7 +26,7 @@ public class GridPathFinder {
 		int distance;
 		while (list.PopLowestDistance(out road, out distance)) {
 			if (distances[road.Index] >= distance) {
-				int newDistance = distance + 1;
+				int newDistance = distance + road.Cost;
 				foreach (var e in road.ConnectionsFrom) {
 					if (e is Road) {
 						Road r = (Road)e;
