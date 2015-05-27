@@ -5,11 +5,11 @@ using System.Collections;
 public class RoadComponent : FieldElementComponent {
 	public Texture oneWayTexture;
 
-	private Road road;
+	private OneTileRoad road;
 
 	// Use this for initialization
 	void Start () {
-		road = (Road) GetComponent<FieldElementComponent>().FieldElement;
+		road = (OneTileRoad)GetComponent<FieldElementComponent>().FieldElement;
 		if (road != null) {
 			road.OneWayTypeChangeListener += OnOneWayChange;
 		}

@@ -119,7 +119,7 @@ public class FieldMap : MonoBehaviour {
 			case FieldElementType.OFFICE:
 				return new Office();
 			case FieldElementType.ROAD:
-				return new Road();
+				return new OneTileRoad();
 			case FieldElementType.SLOPE:
 				return new Slope() { Direction = cursorDirection };
 		}
@@ -170,9 +170,9 @@ public class FieldMap : MonoBehaviour {
 		}
 
 		if (selected.Count >= 1) {
-			if (selected.TrueForAll(e => e is Road)) {
+			if (selected.TrueForAll(e => e is OneTileRoad)) {
 				fieldInfomationPanel = ui.Open(ui.roadPanelPrefab);
-				fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel(selected.Select(e => (Road)e));
+				fieldInfomationPanel.GetComponent<RoadPanel>().AcceptModel(selected.Select(e => (OneTileRoad)e));
 			}
 		}
 	}

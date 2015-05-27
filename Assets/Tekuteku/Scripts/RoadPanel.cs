@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class RoadPanel : MonoBehaviour {
 
-	private IEnumerable<Road> roads;
+	private IEnumerable<OneTileRoad> roads;
 
-	public void AcceptModel(IEnumerable<Road> roads) {
+	public void AcceptModel(IEnumerable<OneTileRoad> roads) {
 		this.roads = roads;
 	}
 
