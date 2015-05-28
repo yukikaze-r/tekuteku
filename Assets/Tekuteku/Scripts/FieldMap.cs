@@ -23,9 +23,6 @@ public class FieldMap : MonoBehaviour {
 
 	private List<FieldElement> selected = new List<FieldElement>();
 	private GameObject fieldInfomationPanel;
-	private GameObject cursor = null;
-	private Direction4 cursorDirection = Direction4.NONE;
-	private ToolPalette toolPalette;
 
 	public event Action<FieldElement, bool> SelectChangeListener = delegate { };
 
@@ -96,23 +93,21 @@ public class FieldMap : MonoBehaviour {
 
 
 	protected void Start() {
-		this.toolPalette = ui.Open(ui.toolPalettePrefab).GetComponent<ToolPalette>();
-		toolPalette.ChangeSlectionListener += OnChangeToolSelection;
 	}
 
-	public void Build(VectorInt3 pos, Tool tool) {
+	public void Build(VectorInt3 pos, Tool tool, Direction4 direction) {
 		FieldElementType type = GetFieldElementTypeFromBuildingTool(tool);
-		FieldElement fieldElement = CreateFieldElement(type);
+		FieldElement fieldElement = CreateFieldElement(type, direction);
 		if (fieldElement.IsPuttable(this, pos) == false) {
 			return;
 		}
 
 		fieldElement.RegisterFieldMap(this, pos);
-		var go = CreateGo(pos.xy, GetPrefab(type, pos.z), cursorDirection);
+		var go = CreateGo(pos.xy, GetPrefab(type, pos.z), direction);
 		go.GetComponent<FieldElementComponent>().AcceptModel(fieldElement);
 	}
 
-	private FieldElement CreateFieldElement(FieldElementType type) {
+	private FieldElement CreateFieldElement(FieldElementType type, Direction4 direction) {
 		switch (type) {
 			case FieldElementType.HOUSE:
 				return new House();
@@ -121,13 +116,13 @@ public class FieldMap : MonoBehaviour {
 			case FieldElementType.ROAD:
 				return new OneTileRoad();
 			case FieldElementType.SLOPE:
-				return new Slope() { Direction = cursorDirection };
+				return new Slope() { Direction = direction };
 		}
 		throw new Exception();
 	}
 
 
-	private GameObject GetPrefab(FieldElementType type, int level) {
+	public GameObject GetPrefab(FieldElementType type, int level) {
 		switch (type) {
 			case FieldElementType.HOUSE:
 				return housePrefab;
@@ -187,60 +182,8 @@ public class FieldMap : MonoBehaviour {
 		selected.Clear();
 	}
 
-	private void OnChangeToolSelection() {
-		ClearSelectedFieldElements();
 
-		if (cursor != null) {
-			Destroy(cursor);
-			cursor = null;
-			cursorDirection = Direction4.NONE;
-		}
-
-		if (toolPalette.Selected != Tool.INSPECTOR) {
-			VectorInt2 pos;
-			GameObject prefab = GetPrefab(GetFieldElementTypeFromBuildingTool(toolPalette.Selected), toolPalette.Level);
-			if (GetCursorMapPosition(out pos)) {
-				cursor = CreateGo(pos, prefab);
-			} else {
-				cursor = CreateGo(pos, prefab);
-				cursor.SetActive(false);
-			}
-			cursor.GetComponent<FieldElementComponent>().MakeCursor();
-			cursorDirection = Direction4.UP;
-		}
-	}
-
-	protected void Update() {
-		if (cursor != null) {
-			VectorInt2 pos;
-			if (GetCursorMapPosition(out pos)) {
-				var p = cursor.transform.position;
-				cursor.transform.position = this.GetCenter(pos, p.y);
-				cursor.SetActive(true);
-			} else {
-				cursor.SetActive(false);
-			}
-
-			if (Input.GetButtonUp("Rotate Cursor Direction")) {
-				cursor.transform.Rotate(Vector3.up, 90f);
-				cursorDirection = cursorDirection.Rotate();
-			}
-		}
-	}
-
-	private bool GetCursorMapPosition(out VectorInt2 pos) {
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		RaycastHit hit;
-		if (Physics.Raycast(ray, out hit)) {
-			pos = GetMapPosition(hit.point);
-			return true;
-		} else {
-			pos = new VectorInt2();
-			return false;
-		}
-	}
-
-	private GameObject CreateGo(VectorInt2 pos, GameObject prefab, Direction4 direction = Direction4.NONE) {
+	public GameObject CreateGo(VectorInt2 pos, GameObject prefab, Direction4 direction = Direction4.NONE) {
 		GameObject child = (GameObject)Instantiate(prefab, this.GetCenter(pos, prefab.transform.position.y), prefab.transform.rotation);
 		child.transform.parent = gameObject.transform;
 		if (direction != Direction4.NONE) {
