@@ -203,6 +203,9 @@ public class FieldMap : MonoBehaviour {
 		return new VectorInt2((int)(v.x), (int)(v.z));
 	}
 
+	public Vector2 GetFloatMapPosition(Vector3 v) {
+		return new Vector2(v.x, v.z);
+	}
 
 	public Vector3 GetCenter(VectorInt2 v, float y) {
 		return new Vector3(v.x + 0.5f, y, v.y+0.5f);

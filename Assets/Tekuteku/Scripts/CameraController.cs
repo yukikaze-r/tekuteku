@@ -4,6 +4,8 @@ using System.Collections;
 [@RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour {
 
+	private const float SUPRESS_MOUSE_UP_SCROLL_DISTANCE = 5f;
+
 	private bool isLastButtonDown = false;
 	private float moveDistance = 0;
 	private Vector3 lastPoint;
@@ -15,7 +17,7 @@ public class CameraController : MonoBehaviour {
 	}
 	
 	protected void Update () {
-		if (Input.GetMouseButton(0)) {
+		if (InputSystem.main.GetScrollStartButton()) {
 			if(isLastButtonDown) {
 				if (Input.GetKey("left shift")) {
 					Vector3 d = Input.mousePosition - lastPoint;
@@ -41,7 +43,7 @@ public class CameraController : MonoBehaviour {
 				}
 			}
 
-			if (moveDistance > 5f) {
+			if (moveDistance > SUPRESS_MOUSE_UP_SCROLL_DISTANCE) {
 				InputSystem.main.SupressMouseButtonUp();
 			}
 
