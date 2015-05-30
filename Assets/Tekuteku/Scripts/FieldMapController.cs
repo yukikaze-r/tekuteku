@@ -110,11 +110,11 @@ public class FieldMapController : MonoBehaviour {
 				}
 			}
 			if (sy < ey) {
-				for (int i = sy; i <= ey; i++) {
+				for (int i = sy + 1; i <= ey; i++) {
 					yield return new VectorInt2(ex, i);
 				}
 			} else {
-				for (int i = sy; i >= ey; i--) {
+				for (int i = sy - 1; i >= ey; i--) {
 					yield return new VectorInt2(ex, i);
 				}
 			}
@@ -129,11 +129,11 @@ public class FieldMapController : MonoBehaviour {
 				}
 			}
 			if (sx < ex) {
-				for (int i = sx; i <= ex; i++) {
+				for (int i = sx + 1; i <= ex; i++) {
 					yield return new VectorInt2(i, ey);
 				}
 			} else {
-				for (int i = sx; i >= ex; i--) {
+				for (int i = sx - 1; i >= ex; i--) {
 					yield return new VectorInt2(i, ey);
 				}
 			}
