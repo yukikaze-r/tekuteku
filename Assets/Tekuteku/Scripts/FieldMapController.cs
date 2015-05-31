@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 [@RequireComponent(typeof(FieldMap))]
 public class FieldMapController : MonoBehaviour {
@@ -89,56 +90,38 @@ public class FieldMapController : MonoBehaviour {
 		}
 	}
 
+
 	private IEnumerable<VectorInt2> GetRangeCursorPositions(VectorInt2 startPos, Vector2 end) {
 		float xInEnd = end.x - (int)end.x;
 		float yInEnd = end.y - (int)end.y;
-		VectorInt2 endPos = new VectorInt2((int)end.x, (int)end.y);
 
 		int sx = startPos.x;
 		int sy = startPos.y;
 		int ex = (int)end.x;
 		int ey = (int)end.y;
 
+		Func<int, Func<int, VectorInt2>> funcX = c => i => new VectorInt2(i, c);
+		Func<int, Func<int, VectorInt2>> funcY = c => i => new VectorInt2(c, i);
+
 		if (yInEnd < xInEnd) {
-			if (sx < ex) {
-				for (int i = sx; i <= ex; i++) {
-					yield return new VectorInt2(i, sy);
-				}
-			} else {
-				for (int i = sx; i >= ex; i--) {
-					yield return new VectorInt2(i, sy);
-				}
-			}
-			if (sy < ey) {
-				for (int i = sy + 1; i <= ey; i++) {
-					yield return new VectorInt2(ex, i);
-				}
-			} else {
-				for (int i = sy - 1; i >= ey; i--) {
-					yield return new VectorInt2(ex, i);
-				}
+			return GetPositions(sx, ex, 0, funcX(sy)).Concat(GetPositions(sy, ey, 1, funcY(ex)));
+		} else {
+			return GetPositions(sy, ey, 0, funcY(sx)).Concat(GetPositions(sx, ex, 1, funcX(ey)));
+		}
+	}
+
+	private static IEnumerable<VectorInt2> GetPositions(int s, int e, int skip, Func<int,VectorInt2> f) {
+		if (s < e) {
+			for (int i = s + skip; i <= e; i++) {
+				yield return f(i);
 			}
 		} else {
-			if (sy < ey) {
-				for (int i = sy; i <= ey; i++) {
-					yield return new VectorInt2(sx, i);
-				}
-			} else {
-				for (int i = sy; i >= ey; i--) {
-					yield return new VectorInt2(sx, i);
-				}
-			}
-			if (sx < ex) {
-				for (int i = sx + 1; i <= ex; i++) {
-					yield return new VectorInt2(i, ey);
-				}
-			} else {
-				for (int i = sx - 1; i >= ex; i--) {
-					yield return new VectorInt2(i, ey);
-				}
+			for (int i = s - skip; i >= e; i--) {
+				yield return f(i);
 			}
 		}
 	}
+
 
 	private void DoInspector(VectorInt3 pos) {
 
