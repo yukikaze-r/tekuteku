@@ -60,7 +60,7 @@ public class FieldElementComponent : MonoBehaviour {
 
 	private void OnSelectChange(FieldElement fieldElement, bool isSelect) {
 		if (fieldElement == this.fieldElement) {
-			gameObject.renderer.material.SetFloat("_Shininess", isSelect ? 0f : 1f);
+			mainObject.renderer.material.SetFloat("_Shininess", isSelect ? 0f : 1f);
 		}
 	}
 

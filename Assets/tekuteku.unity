@@ -497,8 +497,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90359f15daf7ac041aae782128a03f92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sizeX: 20
-  sizeZ: 10
+  sizeX: 100
+  sizeZ: 100
   vehiclePrefab: {fileID: 196756, guid: 5f1299216dffed441939719135c54bb9, type: 2}
   roadPrefab: {fileID: 122108, guid: 853d8964cca9c3743bbbd28fbf7b0602, type: 2}
   housePrefab: {fileID: 100934, guid: 1ff10740a4318354788c6783c46aeff3, type: 2}
@@ -660,7 +660,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a912387a8f86f354f907dcdcd83c4c72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  supressMouseButtonUpCount: 0
 --- !u!4 &1563254022
 Transform:
   m_ObjectHideFlags: 0
