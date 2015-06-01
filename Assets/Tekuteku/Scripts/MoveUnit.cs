@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 [RequireComponent(typeof(Animator))]
-public class UnityChanController : MonoBehaviour {
+public class MoveUnit : MonoBehaviour {
 
 	private const float DEADLOCK_DETECTION_TIME = 2f;
 
@@ -21,7 +21,7 @@ public class UnityChanController : MonoBehaviour {
 	private int speedId;
 	private float speed;
 
-	private bool isSetRotation;
+	private bool isInitializeTransformRotation;
 	private Quaternion fromRotation;
 	private Quaternion toRotation;
 	private float distanceInFieldElement;
@@ -34,7 +34,7 @@ public class UnityChanController : MonoBehaviour {
 	private Building goal = null;
 
 	private float stopTimeForDeadlockDetection;
-	private UnityChanController blockedBy;
+	private MoveUnit blockedBy;
 
 
 	private VectorInt2 CurrentMapPosition {
@@ -49,14 +49,14 @@ public class UnityChanController : MonoBehaviour {
 		}
 	}
 
-	public UnityChanController BlockedBy {
+	public MoveUnit BlockedBy {
 		get {
 			return blockedBy;
 		}
 	}
 
 	protected void Start() {
-		isSetRotation = false;
+		isInitializeTransformRotation = false;
 		animator = GetComponent<Animator>();
 		speedId = Animator.StringToHash("Speed");
 
@@ -73,7 +73,7 @@ public class UnityChanController : MonoBehaviour {
 
 		animator.SetFloat(speedId, 1f);
 
-		Walk();
+		WalkNextField();
 	}
 
 	protected void Update() {
@@ -87,35 +87,31 @@ public class UnityChanController : MonoBehaviour {
 
 	protected void FixedUpdate() {
 		if (nextFieldElement == null) {
-			FindNextRoute();
+			StartMoveNext();
+			return;
+		}
+		
+		/*
+		FieldElement nextNext = this.GetNextFieldElement(nextFieldElement);
+		if (nextNext == currentFieldElement) {
+			StartMoveNext(); // 移動中に経路が変わりUターン
+			return;
+		}*/
+
+		if (currentFieldElement.CanMove(this, out blockedBy) == false) {
+			speed = 0f;
+			stopTimeForDeadlockDetection += Time.deltaTime;
+			if (stopTimeForDeadlockDetection >= DEADLOCK_DETECTION_TIME) {
+				DetectDeadLock();
+				stopTimeForDeadlockDetection = 0f;
+			}
 			return;
 		}
 
-		if (nextFieldElement != null && nextFieldElement.Vehicles.Count() >= 1) {
-			FieldElement nextNext = this.GetNextFieldElement(nextFieldElement);
-			if (nextNext == currentFieldElement) {
-				Walk();
-				return;
-			}
-			foreach (var vehicle in nextFieldElement.Vehicles) {
-				if (vehicle.NextFieldElement == nextNext) {
-					blockedBy = vehicle;
-					speed = 0f;
-					stopTimeForDeadlockDetection += Time.deltaTime;
-					if (stopTimeForDeadlockDetection >= DEADLOCK_DETECTION_TIME) {
-						DetectDeadLock();
-						stopTimeForDeadlockDetection = 0f;
-					}
-					return;
-				}
-			}
-		}
 		blockedBy = null;
 		stopTimeForDeadlockDetection = 0f;
 
-		VectorInt2 oldMapPosition = this.CurrentMapPosition;
 		var pos = gameObject.transform.position;
-
 
 		if (speed < 1f) {
 			speed += 0.1f;
@@ -128,15 +124,14 @@ public class UnityChanController : MonoBehaviour {
 		gameObject.transform.position = pos;
 		distanceInFieldElement += Time.deltaTime * speed;
 
-		if (!oldMapPosition.Equals(this.CurrentMapPosition)) {
-			Walk();
+		if (!currentFieldElement.ContainsPosition(transform.position)) {
+			WalkNextField();
 		}
-
 	}
 
 	public void DetectDeadLock() {
-		var marked = new HashSet<UnityChanController>();
-		UnityChanController carsor = this;
+		var marked = new HashSet<MoveUnit>();
+		MoveUnit carsor = this;
 		do {
 			if (marked.Contains(carsor)) {
 				Debug.Log("dead lock detected");
@@ -150,22 +145,15 @@ public class UnityChanController : MonoBehaviour {
 	}
 
 	public void Destroy() {
-		currentFieldElement.Vehicles.Remove(this);
+		currentFieldElement.MoveUnits.Remove(this);
 		Destroy(gameObject);
 	}
 
-	private void Walk() {
+	private void WalkNextField() {
 		if (currentFieldElement == null) {
 			currentFieldElement = fieldMap.GetFieldElementAt(this.CurrentMapPosition, 0);
 		} else {
-			var c = this.CurrentMapPosition;
-			foreach (var pos in currentFieldElement.Positions) {
-				if (c == new VectorInt2(pos.x, pos.y)) {
-					return;
-				}
-			}
-
-			currentFieldElement.Vehicles.Remove(this);
+			currentFieldElement.MoveUnits.Remove(this);
 			currentFieldElement = nextFieldElement;
 		}
 
@@ -174,28 +162,28 @@ public class UnityChanController : MonoBehaviour {
 			return;
 		}
 
-		currentFieldElement.Vehicles.Add(this);
-		FindNextRoute();
+		currentFieldElement.MoveUnits.Add(this);
+		StartMoveNext();
 	}
 
-	private void FindNextRoute() {
+	private void StartMoveNext() {
 		nextFieldElement = GetNextFieldElement(currentFieldElement);
 		if (nextFieldElement != null) {
-			MoveTo((nextFieldElement.Position - currentFieldElement.Position).xy.Direction4);
+			StartMove((nextFieldElement.Position - currentFieldElement.Position).xy.Direction4);
 		}
 	}
 
-	private FieldElement GetNextFieldElement(FieldElement fieldElement) {
+	public FieldElement GetNextFieldElement(FieldElement fieldElement) {
 		if (goal.ConnectionsFrom.Contains(fieldElement)) {
 			return goal;
 		}
 		return goal.PathFinder.GetNextRoad(fieldElement);
 	}
 
-	private void MoveTo(Direction4 d) {
-		if (isSetRotation == false) {
+	private void StartMove(Direction4 d) {
+		if (isInitializeTransformRotation == false) {
 			transform.rotation = d.Quaternion();
-			isSetRotation = true;
+			isInitializeTransformRotation = true;
 		}
 		this.fromRotation = transform.rotation;
 		this.toRotation = d.Quaternion();

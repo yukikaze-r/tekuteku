@@ -14,10 +14,10 @@ public abstract class FieldElement {
 
 	protected List<FieldElement> contacts = new List<FieldElement>();
 	
-	private HashSet<UnityChanController> vehicles = new HashSet<UnityChanController>();
-	public HashSet<UnityChanController> Vehicles {
+	private HashSet<MoveUnit> moveUnits = new HashSet<MoveUnit>();
+	public HashSet<MoveUnit> MoveUnits {
 		get {
-			return vehicles;
+			return moveUnits;
 		}
 	}
 
@@ -85,4 +85,39 @@ public abstract class FieldElement {
 		return 0.05f;
 	}
 
+	public bool ContainsPosition(VectorInt2 p) {
+		foreach (var pos in this.Positions) {
+			if (p.x == pos.x && p.y == pos.y) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public bool ContainsPosition(Vector3 position) {
+		return ContainsPosition(this.FieldMap.GetMapPosition(position));
+	}
+
+	public bool CanEnter(FieldElement nextNext, out MoveUnit blockedBy) {
+		foreach (var vehicle in this.MoveUnits) {
+			if (vehicle.NextFieldElement == nextNext) {
+				blockedBy = vehicle;
+				return false;
+			}
+		}
+		blockedBy = null;
+		return true;
+	}
+
+	public virtual bool CanMove(MoveUnit moveUnit, out MoveUnit blockedBy) {
+		FieldElement next = moveUnit.NextFieldElement;
+		if (next.MoveUnits.Count() >= 1) {
+			FieldElement nextNext = moveUnit.GetNextFieldElement(next);
+			if (next.CanEnter(nextNext, out blockedBy)==false) {
+				return false;
+			}
+		}
+		blockedBy = null;
+		return true;
+	}
 }

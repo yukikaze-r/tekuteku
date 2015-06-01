@@ -41,7 +41,7 @@ public class FieldElementComponent : MonoBehaviour {
 			if (fieldElement is Slope) {
 				direction = ((Slope)fieldElement).Direction;
 			}
-			vehicles = fieldElement.Vehicles.Count();
+			vehicles = fieldElement.MoveUnits.Count();
 
 		}
 

@@ -214,7 +214,7 @@ public class FieldMap : MonoBehaviour {
 	public void CreateVehicleGo(VectorInt2 pos) {
 		GameObject child = (GameObject)Instantiate(vehiclePrefab, GetCenter(pos, vehiclePrefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;
-		child.GetComponent<UnityChanController>().FieldMap = this;
+		child.GetComponent<MoveUnit>().FieldMap = this;
 	}
 
 	public IEnumerable<VectorInt2> GetAroundPositions(VectorInt2 org) {
