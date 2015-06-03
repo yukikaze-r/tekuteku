@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Slope : Road {
@@ -67,5 +68,37 @@ public class Slope : Road {
 		get {
 			return 2;
 		}
+	}
+
+	public override bool CanEnter(MoveUnit moveUnit, out MoveUnit blockedBy) {
+		FieldElement nextNext = moveUnit.GetNextFieldElement(moveUnit.NextFieldElement);
+		blockedBy = GetOnStartPositionUnits(nextNext).FirstOrDefault();
+		return blockedBy == null;
+	}
+
+	private bool IsOnEndPosition(MoveUnit moveUnit) {
+		return moveUnit.NextFieldElement.Positions
+			.SelectMany(p => this.FieldMap.GetAroundPositions(p))
+			.Select(p=>p.xy)
+			.Contains(moveUnit.CurrentMapPosition);
+	}
+
+	private IEnumerable<MoveUnit> GetOnStartPositionUnits(FieldElement next) {
+		return this.MoveUnits.Where(u => u.NextFieldElement == next && !IsOnEndPosition(u));
+	}
+
+	private IEnumerable<MoveUnit> GetOnEndPositionUnits(FieldElement next) {
+		return this.MoveUnits.Where(u => u.NextFieldElement == next && IsOnEndPosition(u));
+	}
+
+	public override bool CanMove(MoveUnit moveUnit, out MoveUnit blockedBy) {
+		if (IsOnEndPosition(moveUnit)) {
+			return base.CanMove(moveUnit, out blockedBy);
+		}
+		else {
+			blockedBy = GetOnEndPositionUnits(moveUnit.NextFieldElement).FirstOrDefault();
+			return blockedBy == null;
+		}
+
 	}
 }

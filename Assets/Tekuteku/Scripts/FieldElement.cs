@@ -98,26 +98,22 @@ public abstract class FieldElement {
 		return ContainsPosition(this.FieldMap.GetMapPosition(position));
 	}
 
-	public bool CanEnter(FieldElement nextNext, out MoveUnit blockedBy) {
+	public virtual bool CanEnter(MoveUnit moveUnit, out MoveUnit blockedBy) {
+		blockedBy = null;
+		if (this.MoveUnits.Count() == 0) {
+			return true;
+		}
+		FieldElement nextNext = moveUnit.GetNextFieldElement(moveUnit.NextFieldElement);
 		foreach (var vehicle in this.MoveUnits) {
 			if (vehicle.NextFieldElement == nextNext) {
 				blockedBy = vehicle;
 				return false;
 			}
 		}
-		blockedBy = null;
 		return true;
 	}
 
 	public virtual bool CanMove(MoveUnit moveUnit, out MoveUnit blockedBy) {
-		FieldElement next = moveUnit.NextFieldElement;
-		if (next.MoveUnits.Count() >= 1) {
-			FieldElement nextNext = moveUnit.GetNextFieldElement(next);
-			if (next.CanEnter(nextNext, out blockedBy)==false) {
-				return false;
-			}
-		}
-		blockedBy = null;
-		return true;
+		return moveUnit.NextFieldElement.CanEnter(moveUnit, out blockedBy);
 	}
 }

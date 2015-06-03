@@ -37,9 +37,15 @@ public class MoveUnit : MonoBehaviour {
 	private MoveUnit blockedBy;
 
 
-	private VectorInt2 CurrentMapPosition {
+	public VectorInt2 CurrentMapPosition {
 		get {
 			return fieldMap.GetMapPosition(transform.position);
+		}
+	}
+
+	public FieldElement CurrentFieldElement {
+		get {
+			return currentFieldElement;
 		}
 	}
 
