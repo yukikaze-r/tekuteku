@@ -187,6 +187,10 @@ public class MoveUnit : MonoBehaviour {
 	}
 
 	private void StartMove(Direction4 d) {
+/*		var goalPositoins = nextFieldElement.GetGoalPositions(currentFieldElement);
+		var goalPos = goalPositions.GetClosest(transform.position);*/
+
+
 		if (isInitializeTransformRotation == false) {
 			transform.rotation = d.Quaternion();
 			isInitializeTransformRotation = true;
@@ -196,8 +200,48 @@ public class MoveUnit : MonoBehaviour {
 		distanceInFieldElement = 0;
 	}
 
+
+
     private bool IsUTurn() {
 		return Quaternion.Angle(this.toRotation,this.fromRotation) >= 100;
     }
+	
+	private Vector2[] bezierPoints = new Vector2[4];
+	private float distance;
 
+	private void InitializeBezierPoints(Vector2 goalPos, Quaternion goalRotation) {
+		bezierPoints[0] = transform.position;
+		bezierPoints[1] = CalculateBezierNextPoint(transform.position, transform.rotation);
+		bezierPoints[2] = CalculateBezierNextPoint(goalPos, 
+			new Quaternion(goalRotation.x, goalRotation.y, goalRotation.z, -goalRotation.w));
+		bezierPoints[3] = goalPos;
+		distance = CalculateDistance();
+	}
+
+	private Vector2 CalculateBezierNextPoint(Vector2 point, Quaternion quaternion) {
+		Vector3 p = quaternion * Vector3.forward;
+		return point + new Vector2(p.x, p.z) * 0.4f;
+	}
+
+	private Vector2 GetPoint(float t) {
+		var bp = bezierPoints;
+		float tp = 1 - t;
+		return t * t * t * bp[3] + 3 * t * t * tp * bp[2] + 3 * t * tp * tp * bp[1] + tp * tp * tp * bp[0];
+	}
+
+	private float CalculateDistance() {
+		float result = 0f;
+		Vector2 old = Vector2.zero;
+		bool isFirst = true;
+		for (float t = 0; t < 1f; t += 0.1f ) {
+			var p = GetPoint(t);
+			if (!isFirst) {
+				result += (old - p).magnitude;
+			} else {
+				isFirst = false;
+			}
+			old = p;
+		}
+		return result;
+	}
 }
