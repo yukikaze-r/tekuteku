@@ -211,6 +211,10 @@ public class FieldMap : MonoBehaviour {
 		return new Vector3(v.x + 0.5f, y, v.y+0.5f);
 	}
 
+	public Vector3 GetCenter(VectorInt3 v) {
+		return new Vector3(v.x + 0.5f, v.z, v.y + 0.5f);
+	}
+
 	public void CreateVehicleGo(VectorInt2 pos) {
 		GameObject child = (GameObject)Instantiate(vehiclePrefab, GetCenter(pos, vehiclePrefab.transform.position.y), Quaternion.identity);
 		child.transform.parent = gameObject.transform;

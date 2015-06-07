@@ -116,4 +116,24 @@ public abstract class FieldElement {
 	public virtual bool CanMove(MoveUnit moveUnit, out MoveUnit blockedBy) {
 		return moveUnit.NextFieldElement.CanEnter(moveUnit, out blockedBy);
 	}
+
+	private IEnumerable<VectorInt3> GetMyPositionFromConnectedPosition(VectorInt3 connectedPosition) {
+		foreach(var p in this.Positions) {
+			if(this.FieldMap.GetAroundPositions(p).Contains(connectedPosition)) {
+				yield return p;
+			}
+		}
+	}
+
+	public IEnumerable<Vector3> GetConnectionPoints(FieldElement from) {
+		foreach (var connectedPosition in this.ContactedPositions) {
+			var fieldElement = this.FieldMap.GetFieldElementAt(connectedPosition.xy, connectedPosition.z);
+			if (fieldElement != null) {
+				foreach(var p in GetMyPositionFromConnectedPosition(connectedPosition) ){
+					yield return (this.FieldMap.GetCenter(p) + this.FieldMap.GetCenter(connectedPosition)) / 2;
+				}
+			}
+		}
+	}
+
 }

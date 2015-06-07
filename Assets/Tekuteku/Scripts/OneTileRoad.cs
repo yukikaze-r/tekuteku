@@ -42,7 +42,7 @@ public class OneTileRoad : Road {
 	public override bool IsConnectTo(FieldElement contacted) {
 		return this.IsOneWay == false || contacted.Position.xy != this.Position.xy.GetNext(this.OneWayDirection.Reverse());
 	}
-
+	
 	public override float GetVehicleAltitude(Vector2 pos) {
 		return this.Position.z == 0 ? 0.05f : 0.95f;
 	}

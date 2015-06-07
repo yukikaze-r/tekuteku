@@ -123,14 +123,33 @@ public class MoveUnit : MonoBehaviour {
 			speed += 0.1f;
 		}
 
+		var oldPosition = gameObject.transform.position;
+
+		gameObject.transform.position = GetPoint(distanceInFieldElement / distance);
+		var v = gameObject.transform.position - oldPosition;
+		if (v != Vector3.zero) {
+			Debug.Log("v:"+v);
+			transform.rotation = Quaternion.LookRotation(v);
+		}
+
+//		pos.x = p.x;
+//		pos.z = p.y;
+
+/*
 		if (!IsUTurn() || Quaternion.Angle(transform.rotation,this.toRotation) <= 10f) {
 			pos += transform.rotation * new Vector3(0, 0, 1) * Time.deltaTime * speed;
 		}
-		transform.rotation = Quaternion.Slerp(this.fromRotation, this.toRotation, distanceInFieldElement / (Mathf.PI / 4));
-		gameObject.transform.position = pos;
+		transform.rotation = Quaternion.Slerp(this.fromRotation, this.toRotation, distanceInFieldElement / (Mathf.PI / 4));*/
+
+//		gameObject.transform.position = pos;
+
+/*		if (!currentFieldElement.ContainsPosition(transform.position)) {
+			WalkNextField();
+		}*/
+
 		distanceInFieldElement += Time.deltaTime * speed;
 
-		if (!currentFieldElement.ContainsPosition(transform.position)) {
+		if (distanceInFieldElement >= distance) {
 			WalkNextField();
 		}
 	}
@@ -187,8 +206,14 @@ public class MoveUnit : MonoBehaviour {
 	}
 
 	private void StartMove(Direction4 d) {
-/*		var goalPositoins = nextFieldElement.GetGoalPositions(currentFieldElement);
-		var goalPos = goalPositions.GetClosest(transform.position);*/
+		var goalPositoins = nextFieldElement.GetConnectionPoints(currentFieldElement);
+
+
+		var goalPosition = goalPositoins.WhereMin(p => (p - transform.position).sqrMagnitude).First();
+
+		InitializeBezierPoints(goalPosition, d.Quaternion());
+
+/*		var goalPos = goalPositions.GetClosest(transform.position);*/
 
 
 		if (isInitializeTransformRotation == false) {
@@ -206,24 +231,26 @@ public class MoveUnit : MonoBehaviour {
 		return Quaternion.Angle(this.toRotation,this.fromRotation) >= 100;
     }
 	
-	private Vector2[] bezierPoints = new Vector2[4];
+	private Vector3[] bezierPoints = new Vector3[4];
 	private float distance;
 
-	private void InitializeBezierPoints(Vector2 goalPos, Quaternion goalRotation) {
+	private void InitializeBezierPoints(Vector3 goalPos, Quaternion goalRotation) {
 		bezierPoints[0] = transform.position;
 		bezierPoints[1] = CalculateBezierNextPoint(transform.position, transform.rotation);
-		bezierPoints[2] = CalculateBezierNextPoint(goalPos, 
-			new Quaternion(goalRotation.x, goalRotation.y, goalRotation.z, -goalRotation.w));
+		bezierPoints[2] = CalculateBezierNextPoint(goalPos, goalRotation * Quaternion.Euler(new Vector3(0,180,0)));
+//			new Quaternion(-goalRotation.x, -goalRotation.y, -goalRotation.z, -goalRotation.w));
 		bezierPoints[3] = goalPos;
+		Debug.Log("0:" + bezierPoints[0] + " 1:" + bezierPoints[1] + " 2:" + bezierPoints[2]+" 3:"+bezierPoints[3]);
+
 		distance = CalculateDistance();
 	}
 
-	private Vector2 CalculateBezierNextPoint(Vector2 point, Quaternion quaternion) {
+	private Vector3 CalculateBezierNextPoint(Vector3 point, Quaternion quaternion) {
 		Vector3 p = quaternion * Vector3.forward;
-		return point + new Vector2(p.x, p.z) * 0.4f;
+		return point + p * 0.2f;
 	}
 
-	private Vector2 GetPoint(float t) {
+	private Vector3 GetPoint(float t) {
 		var bp = bezierPoints;
 		float tp = 1 - t;
 		return t * t * t * bp[3] + 3 * t * t * tp * bp[2] + 3 * t * tp * tp * bp[1] + tp * tp * tp * bp[0];
@@ -231,7 +258,7 @@ public class MoveUnit : MonoBehaviour {
 
 	private float CalculateDistance() {
 		float result = 0f;
-		Vector2 old = Vector2.zero;
+		Vector3 old = Vector3.zero;
 		bool isFirst = true;
 		for (float t = 0; t < 1f; t += 0.1f ) {
 			var p = GetPoint(t);
